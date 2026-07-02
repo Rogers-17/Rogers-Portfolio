@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import localFonts from "next/font/local"
 import "./globals.css";
+import Footer from "@/components/layout/Footer";
+import Navbar from "@/components/layout/Navbar";
 
 const atydisplay = localFonts({
   src:[
@@ -38,7 +40,11 @@ export default function RootLayout({
       lang="en"
       className={`${atydisplay.variable} h-full antialiased`}
     >
-      <body>{children}</body>
+      <body>
+        <Navbar />
+        {children}
+        <Footer />
+        </body>
     </html>
   );
 }

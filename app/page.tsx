@@ -1,12 +1,19 @@
+import CallToAction from "@/sections/CallToAction";
+import Experience from "@/sections/Experience";
+import Hero from "@/sections/Hero";
+import LogoTicker from "@/sections/LogoTicker";
+import Project from "@/sections/Project";
+import Testimonials from "@/sections/Testimonials";
+
 export default function Home () {
   return (
-    <section className="container space-y-5 pt-5">
-      <div>
-        <p className="text-muted">Hey</p>
-      </div>
-      <div className="grad-badge pt-5">
-        Welcome &#129321;
-      </div>
-    </section>
+    <>
+      <Hero />
+      <LogoTicker />
+      <Project />
+      <Testimonials />
+      <Experience />
+      <CallToAction />
+    </>
   )
 }
