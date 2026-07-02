@@ -1,15 +1,33 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #05000A;
+  --bg-card: #131320;
+  --bg-card-hover: #1a1a2e;
+  --bg-surface: #05000A;
+  --text: #e8e6f0;
+  --text-muted: #8a8694;
+  --text-dim: #5c586a;
+  --accent-1: #DE0EFF;
+  --accent-2: #751CFF;
+  --gradient: linear-gradient(65deg, var(--accent-1), var(--accent-2));
+  --gradient-text: linear-gradient(65deg, #DE0EFF, #751CFF);
+  --border: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(255, 255, 255, 0.12);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+  --shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  --shadow-glow: 0 0 40px rgba(222, 14, 255, 0.15);
+  --container: 1200px;
+  --header-h: 72px;
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-atydisplay: var(--font-atydisplay);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -20,7 +38,54 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: #e8e6f0;
+  line-height: 1.6;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: var(--font-atydisplay), sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
+
+/* ---------- Utilities ------------------- */
+
+.container {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.grad-text {
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Gradient-bordered badge / pill — reusable */
+.grad-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 20px;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text);
+  background:
+    linear-gradient(#12041A, #12041A) padding-box,
+    linear-gradient(45deg, #F505FF, #731CFF) border-box;
+  border: 2px solid transparent;
+  border-radius: 10px 30px 30px 10px;
 }
