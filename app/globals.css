@@ -41,7 +41,7 @@ body {
   background: var(--bg);
   color: #e8e6f0;
   line-height: 1.6;
-  overflow-x: hidden;
+  /* overflow-x: hidden; */
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -51,7 +51,7 @@ body {
 html {
   scroll-behavior: smooth;
   -webkit-tap-highlight-color: transparent;
-  overflow-x: hidden;
+  /* overflow-x: hidden; */
 }
 
 .main {
@@ -145,4 +145,241 @@ html {
   align-items: center;
   justify-content: space-between;
   height: 100%;
+}
+
+
+
+/* Hero Visual */
+.hero-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 72px);
+  padding: 5rem 20px 4rem;
+  text-align: center;
+}
+
+.hero-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  padding: 0 20px;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.hero-title {
+  font-size: clamp(2.5rem, 5vw, 5rem);
+  font-weight: 800;
+  line-height: 1.02;
+  margin: 0;
+  max-width: 960px;
+}
+
+.rotating-words {
+  display: inline-block;
+}
+
+.hero-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-avatar-container {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: min(100%, 560px);
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.hero-avatar {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 1.25rem;
+  filter: drop-shadow(0 24px 64px rgba(0, 0, 0, 0.35));
+  z-index: 2;
+}
+
+.hero-avatar-border {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 1;
+  pointer-events: none;
+  transform: translateZ(0);
+}
+
+.scan-line-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.scan-line-mask::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.08) 2px, transparent 2px, transparent 4px);
+  opacity: 0.25;
+}
+
+@property --border-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.hero-avatar-border.draw-animation {
+  animation: drawBorder 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.hero-avatar-border.draw-animation {
+  animation: drawBorder 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+
+
+@keyframes drawBorder {
+  0% {
+    --border-angle: 0deg;
+  }
+
+  100% {
+    --border-angle: 360deg;
+  }
+}
+
+@keyframes fadeBorder {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.hero-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: var(--container);
+  padding: 0 24px;
+  margin: 2rem auto 0;
+  padding-bottom: 20px;
+  z-index: 3;
+  position: relative;
+  gap: 1.5rem;
+}
+
+.hero-bottom-left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  max-width: 720px;
+}
+
+.hero-tagline {
+  width: 100%;
+  font-size: 1rem;
+  color: var(--text-muted);
+  line-height: 1.75;
+  margin: 0;
+}
+
+.hero-profile-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #a2a2a2;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+}
+
+.hero-cta {
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-size: 0.95rem;
+  padding: 16px 32px;
+  flex-shrink: 0;
+}
+
+.hero-cta-text {
+  font-weight: 600;
+}
+
+@media (min-width: 768px) {
+  .hero-inner {
+    padding: 0 32px;
+    gap: 3.5rem;
+  }
+
+  .hero-bottom {
+    justify-content: center;
+    align-items: center;
+    padding: 0 32px;
+    margin-top: -60px;
+    gap: 1.5rem;
+  }
+
+  .hero-bottom-left {
+    align-items: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: 767px) {
+  .hero-title {
+    font-size: clamp(2.25rem, 8vw, 3.6rem);
+  }
+
+  .hero-bottom {
+    margin-top: 0;
+  }
+}
+
+.hero-prop {
+  width: 234px;
+  height: auto;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+  align-self: flex-start;
+}
+
+/* 3D Sticker Container — Three.js handles the animation */
+.sticker-3d {
+  position: relative;
+  display: inline-flex;
+  align-self: flex-start;
+  z-index: 1;
+}
+
+.sticker-glare {
+  display: none;
+}
+
+.hero-prop-left {
+  margin-right: -50px;
+}
+
+.hero-prop-right {
+  margin-left: -50px;
 }
