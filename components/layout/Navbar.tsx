@@ -3,8 +3,9 @@ import Link from "next/link";
 import Logo from "../ui/Logo";
 import Menu from '@/components/ui/Menu'
 import * as React from 'react'
-import { AiOutlineArrowDown, AiFillX } from 'react-icons/ai';
-import { FaArrowDown, FaArrowRight } from 'react-icons/fa';
+import { AiOutlineArrowDown } from 'react-icons/ai';
+import { FaArrowRight } from 'react-icons/fa';
+import { FiMenu, FiX } from 'react-icons/fi';
 import { NavbarMenu } from "@/utils/data";
 
 export default function Navbar () {
@@ -24,9 +25,9 @@ export default function Navbar () {
                     onClick={() => setIsOpen(!isOpen)}
                     className="lg:hidden" >
                     {isOpen ? (
-                        <div>x</div>
+                        <FiX size={30}/>
                     ) : (
-                        <Menu />
+                        <div className="flex items-center justify-center gap-1 uppercase font-bold">Menu <FiMenu size={30}/></div>
                     )}
                 </button>
                 <div className="hidden lg:flex items-center gap-8 text-sm font-bold">
@@ -61,9 +62,10 @@ export default function Navbar () {
                     ))}
                 </div>
                 <div className="text-sm font-bold transition-all duration-100 ease-in-out uppercase grad-text hidden lg:flex">
-                    <div className="flex justify-center items-center gap-2">
+                    <Link className="flex justify-center items-center gap-2 cursor-pointer"
+                    href={'/start-a-project'}>
                         Start A Project <FaArrowRight size={10} className="grad-text text-purple-500"/>
-                    </div>
+                    </Link>
                 </div>
             </nav>
             

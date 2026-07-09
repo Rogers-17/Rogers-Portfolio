@@ -24,6 +24,12 @@
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+@theme{
+  --breakpoint-sm: 375px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1200px;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -79,6 +85,12 @@ html {
     }
 }
 
+.hero-bg{
+  background-image: url(/public/img/hero-bg.png);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
 
 /* ---------- Utilities ------------------- */
 
@@ -383,3 +395,101 @@ html {
 .hero-prop-right {
   margin-left: -50px;
 }
+
+/* ── Buttons ───────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all var(--transition);
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:active {
+  transform: scale(0.96) !important;
+}
+
+.btn svg {
+  flex-shrink: 0;
+  transition: transform var(--transition);
+}
+
+.btn:hover svg {
+  transform: translateX(4px);
+}
+
+.btn-primary {
+  background: var(--gradient);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(222, 14, 255, 0.25);
+}
+
+.btn-primary::after,
+.btn-cv::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.25), transparent);
+  transform: skewX(-20deg);
+  transition: none;
+}
+
+.btn-primary:hover::after,
+.btn-cv:hover::after {
+  animation: shine 0.7s ease-in-out;
+}
+
+@keyframes shine {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 30px rgba(222, 14, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  border: 1px solid var(--border-hover);
+  color: var(--text);
+  background: rgba(81, 44, 111, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-outline:hover {
+  border-color: var(--accent-1);
+  background: rgba(222, 14, 255, 0.06);
+  color: #fff;
+}
+
+.btn-cv {
+  background: var(--gradient);
+  color: #fff;
+  border-radius: 60px 0 60px 60px;
+  box-shadow: 0 4px 20px rgba(222, 14, 255, 0.25);
+}
+
+.btn-cv:hover {
+  box-shadow: 0 6px 30px rgba(222, 14, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-lg {
+  padding: 18px 36px;
+  font-size: 1rem;
+}
+
+
