@@ -22,11 +22,13 @@ export default function LogoTicker () {
                             key={i}
                             >
                                 {logos.map(logo => (
-                                    <div className="flex items-center justify-center w-24 h-24 
+                                    <div 
+                                    key={logo.name}
+                                    className="flex items-center justify-center w-24 h-24 
                                     rounded-2xl p-3.5 bg-white/4 border border-white/6 cursor-default transition-all duration-300
                                     [transition-timing-function:cubic-bezier(0.68, -0.55, 0.265, 1.55)]
                                     will-change-transform hover:translate-y-2 hover:scale-[1.15] hover:bg-white/8 hover:border-white/15"
-                                     data-label="Figma">
+                                     data-label={logo.name}>
                                         <Image src={logo.image}  alt={logo.name} key={logo.name} />
                                     </div>
                                 ))}
