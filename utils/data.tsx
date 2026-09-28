@@ -1,4 +1,4 @@
-import { NavbarMenuItems, Project, Testimonial, ExperienceItem } from "@/types/type";
+import { NavbarMenuItems, Testimonial, ExperienceItem } from "@/types/type";
 import Figma  from '@/assets/images/figma.svg'
 import HTML5  from '@/assets/images/html5.svg'
 import CSS3  from '@/assets/images/css3.svg'
@@ -21,7 +21,7 @@ export const logos = [
 
 export const NavbarMenu: NavbarMenuItems[] = [
     { menu: "Home", href: "/", hasDropdown: false },
-    { menu: "Projects", href: "/", hasDropdown: false },
+    { menu: "Projects", href: "/projects", hasDropdown: false },
     { menu: "Blog", href: "/blog", hasDropdown: false,},
     { menu: "About", href: "/support", hasDropdown: true, 
         submenu: [
@@ -37,45 +37,6 @@ export const NavbarMenu: NavbarMenuItems[] = [
             { menu: "CSS", href: '/support'},
         ]
     }
-]
-
-export const projects: Project[] = [
-    {
-        title: "Lendify — Lending Platform",
-        description: "Full-stack lending dashboard for a financial institution, delivering instant credit decisions and a design system that scales across web and mobile.",
-        tags: ["Fintech", "Dashboard", "Design System"],
-        stack: ["Next.js", "TypeScript", "Supabase", "Figma"],
-        year: "2025",
-        href: "/",
-        accent: ["#DE0EFF", "#751CFF"],
-    },
-    {
-        title: "Restack — SaaS Web App",
-        description: "Multi-tenant SaaS workspace with realtime collaboration, billing flows, and AI-assisted onboarding for a fast-growing startup.",
-        tags: ["SaaS", "Web App", "Realtime"],
-        stack: ["React", "Firebase", "Tailwind", "Figma"],
-        year: "2025",
-        href: "/",
-        accent: ["#00C2FF", "#751CFF"],
-    },
-    {
-        title: "Vault — Fintech Mobile",
-        description: "Pocket-to-investment mobile experience connecting savings, budgeting, and trading for a startup's core consumer product.",
-        tags: ["Fintech", "Mobile", "UI Kit"],
-        stack: ["Next.js", "TypeScript", "Firebase", "Figma"],
-        year: "2024",
-        href: "/",
-        accent: ["#F505FF", "#FF7A00"],
-    },
-    {
-        title: "Scale — WordPress Revamp",
-        description: "High-performance WordPress rebuild with a modern design system, headless CMS integrations, and sub-second page loads.",
-        tags: ["WordPress", "CMS", "Marketing"],
-        stack: ["WordPress", "CSS3", "Javascript", "Figma"],
-        year: "2024",
-        href: "/",
-        accent: ["#FF7A00", "#DE0EFF"],
-    },
 ]
 
 export const testimonials: Testimonial[] = [

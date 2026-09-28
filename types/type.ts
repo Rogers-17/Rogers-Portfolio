@@ -8,16 +8,6 @@ export interface NavbarMenuItems{
     }[]
 }
 
-export interface Project {
-    title: string;
-    description: string;
-    tags: string[];
-    stack: string[];
-    year: string;
-    href: string;
-    accent: [string, string];
-}
-
 export interface Testimonial {
     quote: string;
     name: string;
