@@ -1,10 +1,8 @@
 import { z } from "zod"
 import { publicImageUrl } from "@/lib/storage"
+import { projectStatusSchema, slugSchema } from "@/lib/projects/shared"
 
-export const slugSchema = z.string().max(100).regex(/^[a-z0-9]+(-[a-z0-9]+)*$/)
-
-export const projectStatusSchema = z.enum(["active", "in_development", "completed", "archived"])
-export type ProjectStatus = z.infer<typeof projectStatusSchema>
+export { slugSchema, projectStatusSchema, type ProjectStatus } from "@/lib/projects/shared"
 
 const bySortOrder = <T extends { sort_order: number }>(a: T, b: T) => a.sort_order - b.sort_order
 

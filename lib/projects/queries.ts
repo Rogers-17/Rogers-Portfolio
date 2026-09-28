@@ -1,5 +1,5 @@
 import "server-only"
-import { unstable_cache } from "next/cache"
+import { cache } from "react"
 import { z } from "zod"
 import { createServerSupabase } from "@/lib/supabase/server"
 import {
@@ -11,17 +11,14 @@ import {
     type ProjectDetail,
 } from "@/lib/projects/schema"
 
-export const PROJECTS_CACHE_TAG = "projects"
-// Dev: near-instant so Supabase dashboard edits show on refresh. Prod: 60s until the
-// admin dashboard (Phase 2) calls revalidateTag(PROJECTS_CACHE_TAG) on save.
-const cacheOptions = {
-    tags: [PROJECTS_CACHE_TAG],
-    revalidate: process.env.NODE_ENV === "development" ? 1 : 60,
-}
+export { PROJECTS_CACHE_TAG } from "@/lib/projects/cache"
 
 const FEATURED_LIMIT = 3
 
-export const getPublishedProjects = unstable_cache(
+// React cache() dedupes calls within one render (e.g. generateMetadata + page); cross-request
+// caching is Next's tagged fetch cache configured in lib/supabase/server.ts.
+
+export const getPublishedProjects = cache(
     async (): Promise<ProjectCard[]> => {
         const { data, error } = await createServerSupabase()
             .from("projects")
@@ -33,11 +30,9 @@ export const getPublishedProjects = unstable_cache(
         if (error) throw new Error(`Failed to load projects: ${error.message}`)
         return z.array(projectCardSchema).parse(data)
     },
-    ["projects:published"],
-    cacheOptions,
 )
 
-export const getFeaturedProjects = unstable_cache(
+export const getFeaturedProjects = cache(
     async (): Promise<ProjectCard[]> => {
         const { data, error } = await createServerSupabase()
             .from("projects")
@@ -50,11 +45,9 @@ export const getFeaturedProjects = unstable_cache(
         if (error) throw new Error(`Failed to load featured projects: ${error.message}`)
         return z.array(projectCardSchema).parse(data)
     },
-    ["projects:featured"],
-    cacheOptions,
 )
 
-export const getPublishedProjectSlugs = unstable_cache(
+export const getPublishedProjectSlugs = cache(
     async (): Promise<string[]> => {
         const { data, error } = await createServerSupabase()
             .from("projects")
@@ -64,11 +57,9 @@ export const getPublishedProjectSlugs = unstable_cache(
         if (error) throw new Error(`Failed to load project slugs: ${error.message}`)
         return z.array(z.object({ slug: z.string() })).parse(data).map(row => row.slug)
     },
-    ["projects:slugs"],
-    cacheOptions,
 )
 
-const getProjectRow = unstable_cache(
+const getProjectRow = cache(
     async (slug: string): Promise<ProjectDetail | null> => {
         const { data, error } = await createServerSupabase()
             .from("projects")
@@ -80,8 +71,6 @@ const getProjectRow = unstable_cache(
         if (error) throw new Error(`Failed to load project "${slug}": ${error.message}`)
         return data ? projectDetailSchema.parse(data) : null
     },
-    ["projects:by-slug"],
-    cacheOptions,
 )
 
 export type ProjectWithNeighbours = {

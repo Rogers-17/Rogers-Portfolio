@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import localFonts from "next/font/local"
 import "./globals.css";
-import Footer from "@/components/layout/Footer";
-import Navbar from "@/components/layout/Navbar";
 
 const atydisplay = localFonts({
   src:[
@@ -41,9 +39,7 @@ export default function RootLayout({
       className={`${atydisplay.variable} h-full antialiased scroll-smooth [-webkit-tap-highlight-color:transparent]`}
     >
       <body className="flex min-h-screen flex-col bg-surface text-fg leading-[1.6]">
-        <Navbar />
         {children}
-        <Footer />
         </body>
     </html>
   );
