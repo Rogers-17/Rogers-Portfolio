@@ -25,14 +25,14 @@ const services = [
 export default function Footer () {
     return (
         <footer className="border-t border-white/6 bg-[#05000A]">
-            <div className="main py-14 md:py-20">
+            <div className="mx-auto w-full px-5 sm:max-w-(--breakpoint-sm) md:max-w-(--breakpoint-md) lg:max-w-(--breakpoint-lg) lg:px-20 py-14 md:py-20">
                 <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-12 lg:gap-8">
                     <div className="lg:col-span-5">
-                        <Link href="/" className="uppercase font-extrabold grad-text text-2xl md:text-3xl">
+                        <Link href="/" className="uppercase font-extrabold bg-linear-65/srgb from-accent-1 to-accent-2 bg-clip-text text-transparent text-2xl md:text-3xl">
                             Rogers
                         </Link>
                         <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted">
-                            Full-Stack Designer harnessing AI, design, and code to rapidly deliver intuitive global solutions for startups and financial institutions.
+                            Full-Stack Developer harnessing AI, design, and code to rapidly deliver intuitive global solutions for startups and institutions.
                         </p>
                         <div className="mt-6 flex gap-3">
                             {socials.map(({ name, href, Icon }) => (
@@ -42,7 +42,7 @@ export default function Footer () {
                                     aria-label={name}
                                     className="grid h-10 w-10 place-items-center rounded-full border border-white/6 bg-white/4
                                     text-sm text-muted transition-all duration-300
-                                    [transition-timing-function:cubic-bezier(0.68,-0.55,0.265,1.55)]
+                                    ease-[cubic-bezier(0.68,-0.55,0.265,1.55)]
                                     hover:-translate-y-1 hover:border-white/15 hover:bg-white/8 hover:text-white"
                                 >
                                     <Icon />
@@ -91,7 +91,7 @@ export default function Footer () {
 
                 <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-white/6 pt-6 text-xs text-dim sm:flex-row">
                     <p>&copy; {new Date().getFullYear()} Rogers. All rights reserved.</p>
-                    <p>Designed &amp; built with <span className="grad-text font-semibold">passion</span> in Nigeria.</p>
+                    <p>Designed &amp; built with <span className="bg-linear-65/srgb from-accent-1 to-accent-2 bg-clip-text text-transparent font-semibold">passion</span> in Nigeria.</p>
                 </div>
             </div>
         </footer>

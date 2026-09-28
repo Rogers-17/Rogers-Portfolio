@@ -18,12 +18,12 @@ const item = {
 
 export default function Testimonials () {
     return (
-        <section className="main py-14 md:py-24">
+        <section className="mx-auto w-full px-5 sm:max-w-(--breakpoint-sm) md:max-w-(--breakpoint-md) lg:max-w-(--breakpoint-lg) lg:px-20 py-14 md:py-24">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-10">
                 <div>
-                    <h2 className="grad-badge">Testimonials</h2>
+                    <h2 className="inline-flex items-center gap-1.5 rounded-[10px_30px_30px_10px] border-2 border-transparent px-5 py-3.5 text-lg font-medium text-fg [background:linear-gradient(var(--color-badge),var(--color-badge))_padding-box,linear-gradient(45deg,#f505ff,#731cff)_border-box]">Testimonials</h2>
                     <p className="text-3xl md:text-4xl mt-3 md:mt-5 font-bold">What people say <br />
-                        <span className="grad-text">About working with me</span>
+                        <span className="bg-linear-65/srgb from-accent-1 to-accent-2 bg-clip-text text-transparent">About working with me</span>
                     </p>
                 </div>
                 <p className="max-w-md text-muted leading-relaxed">
@@ -47,7 +47,7 @@ export default function Testimonials () {
                         will-change-transform hover:-translate-y-2 hover:bg-white/8 hover:border-white/15"
                     >
                         <div className="flex items-center justify-between">
-                            <FaQuoteLeft className="text-2xl grad-text" />
+                            <FaQuoteLeft className="text-2xl" />
                             <div className="flex gap-1 text-sm text-[#F505FF]">
                                 {Array.from({ length: testimonial.rating }).map((_, i) => (
                                     <FaStar key={i} />

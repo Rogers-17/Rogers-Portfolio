@@ -17,12 +17,12 @@ const item = {
 
 export default function Experience () {
     return (
-        <section className="main py-14 md:py-24">
+        <section className="mx-auto w-full px-5 sm:max-w-(--breakpoint-sm) md:max-w-(--breakpoint-md) lg:max-w-(--breakpoint-lg) lg:px-20 py-14 md:py-24">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-10">
                 <div>
-                    <h2 className="grad-badge">Experience</h2>
+                    <h2 className="inline-flex items-center gap-1.5 rounded-[10px_30px_30px_10px] border-2 border-transparent px-5 py-3.5 text-lg font-medium text-fg [background:linear-gradient(var(--color-badge),var(--color-badge))_padding-box,linear-gradient(45deg,#f505ff,#731cff)_border-box]">Experience</h2>
                     <p className="text-3xl md:text-4xl mt-3 md:mt-5 font-bold">My journey <br />
-                        <span className="grad-text">So far</span>
+                        <span className="bg-linear-65/srgb from-accent-1 to-accent-2 bg-clip-text text-transparent">So far</span>
                     </p>
                 </div>
                 <p className="max-w-md text-muted leading-relaxed">
@@ -50,7 +50,7 @@ export default function Experience () {
                                     {entry.period}
                                 </span>
                             </div>
-                            <div className="mt-1 font-semibold grad-text">{entry.company}</div>
+                            <div className="mt-1 font-semibold bg-linear-65/srgb from-accent-1 to-accent-2 bg-clip-text text-transparent">{entry.company}</div>
                             <p className="mt-4 text-sm leading-relaxed text-muted">{entry.description}</p>
                             <div className="mt-5 flex flex-wrap gap-2">
                                 {entry.stack.map(tech => (

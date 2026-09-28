@@ -38,9 +38,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${atydisplay.variable} h-full antialiased`}
+      className={`${atydisplay.variable} h-full antialiased scroll-smooth [-webkit-tap-highlight-color:transparent]`}
     >
-      <body>
+      <body className="flex min-h-screen flex-col bg-surface text-fg leading-[1.6]">
         <Navbar />
         {children}
         <Footer />

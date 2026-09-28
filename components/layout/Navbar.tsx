@@ -16,7 +16,7 @@ export default function Navbar () {
 
     return (
         <section className="sticky top-0 z-50 backdrop-blur-md bg-primary py-4 text-white">
-            <main className="main">
+            <main className="mx-auto w-full px-5 sm:max-w-(--breakpoint-sm) md:max-w-(--breakpoint-md) lg:max-w-(--breakpoint-lg) lg:px-20">
             <nav className="flex items-center justify-between">
                 <Link href={'/'}>
                     <Logo />
@@ -61,10 +61,10 @@ export default function Navbar () {
                         </div>
                     ))}
                 </div>
-                <div className="text-sm font-bold transition-all duration-100 ease-in-out uppercase grad-text hidden lg:flex">
+                <div className="text-sm font-bold transition-all duration-100 ease-in-out uppercase bg-linear-65/srgb from-accent-1 to-accent-2 bg-clip-text text-transparent hidden lg:flex">
                     <Link className="flex justify-center items-center gap-2 cursor-pointer"
                     href={'/start-a-project'}>
-                        Start A Project <FaArrowRight size={10} className="grad-text text-purple-500"/>
+                        Start A Project <FaArrowRight size={10} className="text-purple-500"/>
                     </Link>
                 </div>
             </nav>
