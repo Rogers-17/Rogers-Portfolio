@@ -84,8 +84,8 @@ export function Switch ({ checked, onChange, label, disabled }: { checked: boole
 
 export function Card ({ title, hint, children, action }: { title: string, hint?: string, children: React.ReactNode, action?: React.ReactNode }) {
     return (
-        <section className="rounded-2xl border border-white/6 bg-card p-5 md:p-7">
-            <div className="mb-5 flex items-start justify-between gap-4">
+        <section className="min-w-0 rounded-2xl border border-white/6 bg-card p-4 md:p-7">
+            <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
                 <div>
                     <h2 className="text-lg font-bold">{title}</h2>
                     {hint && <p className="mt-1 text-sm text-muted">{hint}</p>}
@@ -103,5 +103,6 @@ export const primaryButtonClass =
 export const secondaryButtonClass =
     "inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/4 px-5 py-2.5 text-sm font-semibold transition-colors hover:border-accent-1 disabled:cursor-not-allowed disabled:opacity-50"
 
+// 40px touch targets on phones/tablets, compact 32px from lg.
 export const iconButtonClass =
-    "inline-flex size-8 items-center justify-center rounded-lg border border-white/10 bg-white/4 text-muted transition-colors hover:border-accent-1 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+    "inline-flex size-10 shrink-0 items-center justify-center rounded-lg lg:size-8 border border-white/10 bg-white/4 text-muted transition-colors hover:border-accent-1 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"

@@ -10,7 +10,9 @@ import type { AdminProjectDetail, AdminTechnology } from "@/lib/admin/queries"
 import { PROJECT_STATUSES, PROJECT_STATUS_LABELS, slugify, type ProjectStatus } from "@/lib/projects/shared"
 import { publicImageUrl } from "@/lib/storage"
 import ImageUpload from "@/components/admin/ImageUpload"
-import { Card, SelectField, Switch, TextAreaField, TextField, iconButtonClass, inputClass, primaryButtonClass, secondaryButtonClass } from "@/components/admin/Field"
+import { Card, SelectField, Switch, TextAreaField, TextField, iconButtonClass, inputClass, secondaryButtonClass } from "@/components/admin/Field"
+import SaveBar from "@/components/admin/SaveBar"
+import { useScrollToFirstError, useUnsavedGuard } from "@/components/admin/form-hooks"
 import { useToast } from "@/components/admin/Toast"
 
 type FeatureState = { key: string, title: string, description: string, image_path: string | null, image_url: string | null, image_alt: string }
@@ -161,19 +163,8 @@ export default function ProjectForm ({ project, technologies }: Props) {
     const isDirty = JSON.stringify(toPayload(state)) !== savedSnapshot
     const uploadFolder = state.slug || "drafts"
 
-    React.useEffect(() => {
-        if (!isDirty) return
-        const warn = (event: BeforeUnloadEvent) => event.preventDefault()
-        window.addEventListener("beforeunload", warn)
-        return () => window.removeEventListener("beforeunload", warn)
-    }, [isDirty])
-
-    React.useEffect(() => {
-        if (Object.keys(errors).length === 0) return
-        const firstInvalid = document.querySelector<HTMLElement>("[aria-invalid='true']")
-        firstInvalid?.scrollIntoView({ behavior: "smooth", block: "center" })
-        firstInvalid?.focus({ preventScroll: true })
-    }, [errors])
+    useUnsavedGuard(isDirty)
+    useScrollToFirstError(errors)
 
     function set<K extends keyof FormState> (key: K, value: FormState[K]) {
         setState(current => ({ ...current, [key]: value }))
@@ -253,7 +244,7 @@ export default function ProjectForm ({ project, technologies }: Props) {
             <div className="flex flex-wrap items-end justify-between gap-4">
                 <div>
                     <Link href="/admin/projects" className="text-sm text-muted hover:text-white">← All projects</Link>
-                    <h1 className="mt-2 text-3xl font-bold">{isNew ? "New project" : state.name || "Untitled project"}</h1>
+                    <h1 className="mt-2 break-words text-2xl font-bold md:text-3xl">{isNew ? "New project" : state.name || "Untitled project"}</h1>
                 </div>
             </div>
 
@@ -282,7 +273,7 @@ export default function ProjectForm ({ project, technologies }: Props) {
                     maxLength={LIMITS.summary}
                     required
                 />
-                <div className="grid gap-5 md:grid-cols-3">
+                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                     <TextField label="Type" value={state.project_type} onChange={event => set("project_type", event.target.value)} error={errors.project_type} hint="Badge text, e.g. Software" required />
                     <TextField label="Niche" value={state.niche} onChange={event => set("niche", event.target.value)} error={errors.niche} hint="e.g. Fintech" />
                     <TextField label="Year" type="number" inputMode="numeric" min={2000} max={2100} value={state.year} onChange={event => set("year", event.target.value)} error={errors.year} required />
@@ -296,7 +287,7 @@ export default function ProjectForm ({ project, technologies }: Props) {
             </Card>
 
             <Card title="Cover image" hint="Used on project cards and the detail page header. PNG, JPG, WEBP, AVIF or GIF up to 5 MB.">
-                <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+                <div className="grid gap-5 lg:grid-cols-2">
                     <ImageUpload
                         bucket="project-images"
                         folder={uploadFolder}
@@ -345,7 +336,7 @@ export default function ProjectForm ({ project, technologies }: Props) {
                                 onRemove={() => set("features", state.features.filter(item => item.key !== feature.key))}
                             />
                         </div>
-                        <div className="grid gap-5 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+                        <div className="grid gap-5 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
                             <div className="flex flex-col gap-5">
                                 <TextField label="Title" value={feature.title} onChange={event => updateFeature(feature.key, { title: event.target.value })} error={errors[`features.${index}.title`]} required />
                                 <TextAreaField label="Description" rows={3} value={feature.description} onChange={event => updateFeature(feature.key, { description: event.target.value })} error={errors[`features.${index}.description`]} />
@@ -382,10 +373,10 @@ export default function ProjectForm ({ project, technologies }: Props) {
                     </div>
                     {state.tech_breakdown.length === 0 && <p className="text-sm text-dim">No breakdown rows yet. Example: “Frontend” → “Next.js with Tailwind…”.</p>}
                     {state.tech_breakdown.map((row, index) => (
-                        <div key={row.key} className="grid gap-3 rounded-xl border border-white/6 bg-white/2 p-4 md:grid-cols-[minmax(0,1fr)_minmax(0,3fr)_auto] md:items-start">
+                        <div key={row.key} className="grid gap-3 rounded-xl border border-white/6 bg-white/2 p-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,3fr)_auto] lg:items-start">
                             <TextField label="Label" value={row.label} onChange={event => updateBreakdown(row.key, { label: event.target.value })} error={errors[`tech_breakdown.${index}.label`]} />
                             <TextAreaField label="Description" rows={2} value={row.description} onChange={event => updateBreakdown(row.key, { description: event.target.value })} error={errors[`tech_breakdown.${index}.description`]} />
-                            <div className="md:pt-7">
+                            <div className="lg:pt-7">
                                 <ItemControls
                                     label={`breakdown row ${index + 1}`}
                                     onUp={index > 0 ? () => set("tech_breakdown", moveItem(state.tech_breakdown, index, -1)) : undefined}
@@ -446,7 +437,7 @@ export default function ProjectForm ({ project, technologies }: Props) {
 
             <Card title="Gallery" hint="Extra images shown on the project page (optional).">
                 {errors.gallery && <p className="text-xs text-rose-400">{errors.gallery}</p>}
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-4 grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-3">
                     {state.gallery.map((image, index) => (
                         <div key={image.key} className="flex flex-col gap-3 rounded-xl border border-white/6 bg-white/2 p-3">
                             <ImageUpload
@@ -504,26 +495,15 @@ export default function ProjectForm ({ project, technologies }: Props) {
                 </label>
             </Card>
 
-            <div className="fixed inset-x-0 bottom-0 z-30 border-t border-white/6 bg-surface/90 px-4 py-3 backdrop-blur lg:left-60 lg:px-10">
-                <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
-                    <p className="text-sm text-muted" aria-live="polite">{isDirty ? "Unsaved changes" : "All changes saved"}</p>
-                    <div className="flex flex-wrap items-center gap-3">
-                        {!isNew && (
-                            <button type="button" onClick={handleDelete} disabled={deleting || saving} className="inline-flex items-center gap-2 px-3 py-2.5 text-sm font-semibold text-rose-400 hover:text-rose-300 disabled:opacity-50">
-                                <FiTrash2 aria-hidden="true" /> {deleting ? "Deleting…" : "Delete"}
-                            </button>
-                        )}
-                        {!isNew && project.is_published && (
-                            <a href={`/projects/${project.slug}`} target="_blank" rel="noopener noreferrer" className={secondaryButtonClass}>
-                                View live <FiExternalLink aria-hidden="true" />
-                            </a>
-                        )}
-                        <button type="submit" disabled={saving || deleting || (!isDirty && !isNew)} className={primaryButtonClass}>
-                            {saving ? "Saving…" : isNew ? "Create project" : "Save changes"}
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <SaveBar
+                isNew={isNew}
+                isDirty={isDirty}
+                saving={saving}
+                deleting={deleting}
+                createLabel="Create project"
+                onDelete={handleDelete}
+                viewHref={!isNew && project.is_published ? `/projects/${project.slug}` : undefined}
+            />
         </form>
     )
 }

@@ -1,4 +1,4 @@
-export type StorageBucket = "project-images" | "tech-icons"
+export type StorageBucket = "project-images" | "tech-icons" | "site-images"
 
 // Client-safe: NEXT_PUBLIC_SUPABASE_URL is inlined at build time (validated at startup in lib/env.ts).
 export function publicImageUrl (bucket: StorageBucket, path: string | null | undefined): string | null {

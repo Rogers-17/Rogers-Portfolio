@@ -6,6 +6,7 @@ export type ImageKind = { ext: "png" | "jpg" | "webp" | "avif" | "gif" | "svg", 
 export const BUCKET_RULES: Record<StorageBucket, { maxBytes: number, allowed: ImageKind["ext"][] }> = {
     "project-images": { maxBytes: 5 * 1024 * 1024, allowed: ["png", "jpg", "webp", "avif", "gif"] },
     "tech-icons": { maxBytes: 1024 * 1024, allowed: ["svg", "png", "webp"] },
+    "site-images": { maxBytes: 2 * 1024 * 1024, allowed: ["png", "jpg", "webp", "avif"] },
 }
 
 const startsWith = (bytes: Uint8Array, signature: number[], offset = 0) =>

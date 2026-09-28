@@ -109,5 +109,5 @@ export const loginSchema = z.object({
 
 export const uuidSchema = z.uuid()
 
-export const uploadBuckets = ["project-images", "tech-icons"] as const
+export const uploadBuckets = ["project-images", "tech-icons", "site-images"] as const
 export const uploadFolderSchema = z.string().regex(/^[a-z0-9-]{1,60}$/, "Invalid folder")

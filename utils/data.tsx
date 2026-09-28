@@ -1,4 +1,4 @@
-import { NavbarMenuItems, Testimonial, ExperienceItem } from "@/types/type";
+import { NavbarMenuItems } from "@/types/type";
 import Figma  from '@/assets/images/figma.svg'
 import HTML5  from '@/assets/images/html5.svg'
 import CSS3  from '@/assets/images/css3.svg'
@@ -37,52 +37,4 @@ export const NavbarMenu: NavbarMenuItems[] = [
             { menu: "CSS", href: '/support'},
         ]
     }
-]
-
-export const testimonials: Testimonial[] = [
-    {
-        quote: "Rogers took our vague idea and shipped a product that felt designed, engineered, and polished from day one. Our investors were blown away by the demo.",
-        name: "Ada Onyeka",
-        role: "CEO, Lendify",
-        initials: "AO",
-        rating: 5,
-    },
-    {
-        quote: "One of the rare people who can bridge design and code. He rebuilt our platform, cut page loads by 60%, and made the team fall in love with the interface.",
-        name: "Marcus Bell",
-        role: "CTO, Restack",
-        initials: "MB",
-        rating: 5,
-    },
-    {
-        quote: "Fast, communicative, and obsessed with detail. Our mobile app finally feels like a product our users want to open every day.",
-        name: "Sara Adeyemi",
-        role: "Product Lead, Vault",
-        initials: "SA",
-        rating: 5,
-    },
-]
-
-export const experience: ExperienceItem[] = [
-    {
-        role: "Senior Full-Stack Designer",
-        company: "Lendify",
-        period: "2024 — Present",
-        description: "Leading design and frontend architecture for a lending platform, building a scalable design system and shipping fintech products to thousands of users.",
-        stack: ["Next.js", "TypeScript", "Figma", "Supabase"],
-    },
-    {
-        role: "Product Designer & Frontend Developer",
-        company: "Restack",
-        period: "2023 — 2024",
-        description: "Designed and built a realtime SaaS workspace, owning the product from research through polished, accessible UI to production.",
-        stack: ["React", "Firebase", "Tailwind", "Figma"],
-    },
-    {
-        role: "Freelance Web Developer",
-        company: "Self Employed",
-        period: "2021 — 2023",
-        description: "Delivered websites and web apps for startups and financial institutions, pairing rapid prototyping with clean, maintainable code.",
-        stack: ["Javascript", "HTML5", "CSS3", "WordPress"],
-    },
 ]

@@ -20,6 +20,7 @@ type Props = {
 const ACCEPT: Record<StorageBucket, string> = {
     "project-images": "image/png,image/jpeg,image/webp,image/avif,image/gif",
     "tech-icons": "image/svg+xml,image/png,image/webp",
+    "site-images": "image/png,image/jpeg,image/webp,image/avif",
 }
 
 export default function ImageUpload ({ bucket, folder, path, url, onChange, label = "Upload image", aspectClass = "aspect-[16/10]", error }: Props) {

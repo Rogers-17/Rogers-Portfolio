@@ -75,8 +75,9 @@ export default function TechnologiesManager ({ technologies }: { technologies: A
                     <form
                         onSubmit={event => { event.preventDefault(); void save() }}
                         noValidate
-                        className="grid gap-5 md:grid-cols-[160px_minmax(0,1fr)]"
+                        className="grid gap-5 min-[560px]:grid-cols-[160px_minmax(0,1fr)]"
                     >
+                        <div className="w-full max-w-40">
                         <ImageUpload
                             bucket="tech-icons"
                             folder="technologies"
@@ -87,7 +88,8 @@ export default function TechnologiesManager ({ technologies }: { technologies: A
                             aspectClass="aspect-square"
                             error={errors.icon_path}
                         />
-                        <div className="flex flex-col gap-5">
+                        </div>
+                        <div className="flex min-w-0 flex-col gap-5">
                             <TextField
                                 label="Name"
                                 value={draft.name}
@@ -115,9 +117,9 @@ export default function TechnologiesManager ({ technologies }: { technologies: A
                 </button>
             )}
 
-            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="grid gap-3 min-[560px]:grid-cols-2 lg:grid-cols-3">
                 {technologies.map(tech => (
-                    <li key={tech.id} className="flex items-center gap-4 rounded-2xl border border-white/6 bg-card p-4">
+                    <li key={tech.id} className="flex min-w-0 items-center gap-3 rounded-2xl border border-white/6 bg-card p-3 md:gap-4 md:p-4">
                         <div className="relative flex size-12 shrink-0 items-center justify-center rounded-xl bg-white/6">
                             {tech.iconUrl ? (
                                 <Image src={tech.iconUrl} alt="" width={32} height={32} unoptimized className="size-8 object-contain" />
