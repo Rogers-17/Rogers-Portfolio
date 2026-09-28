@@ -1,95 +1,113 @@
 "use client"
-import Link from "next/link";
-import Logo from "../ui/Logo";
-import Menu from '@/components/ui/Menu'
-import * as React from 'react'
-import { AiOutlineArrowDown } from 'react-icons/ai';
-import { FaArrowRight } from 'react-icons/fa';
-import { FiMenu, FiX } from 'react-icons/fi';
-import { NavbarMenu } from "@/utils/data";
+
+import * as React from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { FaArrowRight } from "react-icons/fa"
+import { LuMenu } from "react-icons/lu"
+import Logo from "@/components/ui/Logo"
+import MobileMenu from "@/components/layout/MobileMenu"
+import NavDropdown from "@/components/layout/NavDropdown"
+import { isItemActive } from "@/components/layout/nav-utils"
+import { navItems, startProjectLink } from "@/utils/data"
+
+const SCROLL_THRESHOLD = 8
+
+function subscribeToScroll (onChange: () => void) {
+    window.addEventListener("scroll", onChange, { passive: true })
+    return () => window.removeEventListener("scroll", onChange)
+}
+
+// Transparent at the top of the page; dark and blurred once the page has scrolled.
+function useScrolled () {
+    return React.useSyncExternalStore(
+        subscribeToScroll,
+        () => window.scrollY > SCROLL_THRESHOLD,
+        () => false,
+    )
+}
 
 export default function Navbar () {
+    const pathname = usePathname()
+    const scrolled = useScrolled()
+    const [openMenuId, setOpenMenuId] = React.useState<string | null>(null)
+    const [mobileOpen, setMobileOpen] = React.useState(false)
+    const [lastPathname, setLastPathname] = React.useState(pathname)
+    const menuButtonRef = React.useRef<HTMLButtonElement>(null)
 
-    const [activeDropdown, setActiveDropdown] = React.useState<string | null>(null)
-    const [isOpen, setIsOpen] = React.useState<boolean>(false)
-    const menuItems = NavbarMenu
+    // Close any open menu on navigation (adjusting state during render, not in an effect).
+    if (pathname !== lastPathname) {
+        setLastPathname(pathname)
+        setOpenMenuId(null)
+        setMobileOpen(false)
+    }
 
+    const closeMobile = React.useCallback(() => setMobileOpen(false), [])
+
+    // The mobile menu renders outside <header>: the header's backdrop-filter would otherwise
+    // become the containing block for the menu's position: fixed and clip it to 72px.
     return (
-        <section className="sticky top-0 z-50 backdrop-blur-md bg-primary py-4 text-white">
-            <main className="mx-auto w-full px-5 sm:max-w-(--breakpoint-sm) md:max-w-(--breakpoint-md) lg:max-w-(--breakpoint-lg) lg:px-20">
-            <nav className="flex items-center justify-between">
-                <Link href={'/'}>
+        <>
+        <header
+            className={`sticky top-0 z-50 border-b transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300 ${scrolled || openMenuId ? "border-white/6 bg-[#0b0614]/85 shadow-[0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-xl" : "border-transparent bg-transparent"}`}
+        >
+            <div className="mx-auto flex h-18 w-full items-center justify-between px-5 sm:max-w-(--breakpoint-sm) md:max-w-(--breakpoint-md) lg:max-w-(--breakpoint-lg) lg:px-20">
+                <Link href="/" aria-label="Rogers, home" className="rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent-1">
                     <Logo />
                 </Link>
-                <button
-                    onClick={() => setIsOpen(!isOpen)}
-                    className="lg:hidden" >
-                    {isOpen ? (
-                        <FiX size={30}/>
-                    ) : (
-                        <div className="flex items-center justify-center gap-1 uppercase font-bold">Menu <FiMenu size={30}/></div>
-                    )}
-                </button>
-                <div className="hidden lg:flex items-center gap-8 text-sm font-bold">
-                    {menuItems.map(menu => (
-                        <div
-                        key={menu.menu}
-                        className="relative"
-                        onMouseEnter={() => menu.hasDropdown && setActiveDropdown(menu.menu)}
-                        onMouseLeave={() => setActiveDropdown(null)}
-                        >
-                            <Link
-                                key={menu.menu}
-                                href={menu.href}
-                                className="flex items-center gap-1 transition-colors duration-200 hover:text- uppercase"
-                            >
-                                {menu.menu} {menu.hasDropdown && <AiOutlineArrowDown />}
-                            </Link>
-                            
-                            {menu.hasDropdown && activeDropdown === menu.menu && (
-                                <div className="text-sm absolute left-0 top-full mt-3 w-56 rounded-xl border border-gray-100 bg-white p-2 text-muted shadow-2xl z-50">
-                                    {menu.submenu?.map(submenu => (
-                                        <Link 
-                                        href={submenu.href}
-                                        key={submenu.menu} 
-                                        className="block p-2 hover:bg-gray-100 rounded">
-                                            {submenu.menu}
-                                        </Link>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-                <div className="text-sm font-bold transition-all duration-100 ease-in-out uppercase bg-linear-65/srgb from-accent-1 to-accent-2 bg-clip-text text-transparent hidden lg:flex">
-                    <Link className="flex justify-center items-center gap-2 cursor-pointer"
-                    href={'/start-a-project'}>
-                        Start A Project <FaArrowRight size={10} className="text-purple-500"/>
-                    </Link>
-                </div>
-            </nav>
-            
-            <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${ isOpen ? "max-h-120 opacity-100" : "max-h-0 opacity-0" } `}>
-                <div className="flex flex-col gap-2 py-5">
-                    {menuItems.map(link => (
-                        <Link
-                            key={link.menu}
-                            href={link.href}
-                            onClick={() => setIsOpen(false)}
-                            className="rounded-lg px-4 py-3 transition hover:bg-white/10">
-                            {link.menu}
-                        </Link>
-                    ))}
-                    <button
-                        className=" mt-3 w-full rounded-xl border  border-white/40 bg-transparent 
-                        py-3 transition duration-300  hover:bg-white  hover:text-primary "
-                    >
-                        Download App
-                    </button>
 
-                </div>
+                <nav aria-label="Main" className="hidden lg:block">
+                    <ul className="flex items-center gap-10">
+                        {navItems.map(item => {
+                            const active = isItemActive(pathname, item)
+                            return (
+                                <li key={item.kind === "link" ? item.href : item.id}>
+                                    {item.kind === "link" ? (
+                                        <Link
+                                            href={item.href}
+                                            aria-current={active ? "page" : undefined}
+                                            className={`text-[15px] uppercase tracking-wide transition-colors duration-200 hover:text-accent-1 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent-1 ${active ? "text-accent-1" : "text-white"}`}
+                                        >
+                                            {item.label}
+                                        </Link>
+                                    ) : (
+                                        <NavDropdown
+                                            item={item}
+                                            pathname={pathname}
+                                            active={active}
+                                            isOpen={openMenuId === item.id}
+                                            onOpenChange={isOpen => setOpenMenuId(isOpen ? item.id : null)}
+                                        />
+                                    )}
+                                </li>
+                            )
+                        })}
+                    </ul>
+                </nav>
+
+                <Link
+                    href={startProjectLink.href}
+                    className="group hidden items-center gap-2 text-sm font-bold uppercase tracking-wide lg:flex"
+                >
+                    <span className="bg-linear-65/srgb from-accent-1 to-accent-2 bg-clip-text text-transparent">{startProjectLink.label}</span>
+                    <FaArrowRight size={11} className="text-accent-2 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
+                </Link>
+
+                <button
+                    ref={menuButtonRef}
+                    type="button"
+                    onClick={() => setMobileOpen(true)}
+                    aria-expanded={mobileOpen}
+                    aria-controls="mobile-menu"
+                    className="-mr-2 inline-flex h-11 items-center gap-2 rounded-lg px-2 text-sm font-bold uppercase tracking-wide text-white lg:hidden"
+                >
+                    Menu
+                    <LuMenu className="size-7" aria-hidden="true" />
+                </button>
             </div>
-            </main>
-        </section>
+
+        </header>
+        <MobileMenu open={mobileOpen} pathname={pathname} onClose={closeMobile} returnFocusRef={menuButtonRef} />
+        </>
     )
 }

@@ -1,4 +1,5 @@
-import { NavbarMenuItems } from "@/types/type";
+import { LuBookOpen, LuGraduationCap, LuHouse, LuLayoutGrid, LuRocket, LuUser } from "react-icons/lu"
+import type { NavItem } from "@/types/type";
 import Figma  from '@/assets/images/figma.svg'
 import HTML5  from '@/assets/images/html5.svg'
 import CSS3  from '@/assets/images/css3.svg'
@@ -19,22 +20,29 @@ export const logos = [
     { name: 'WordPress', image: WordPress }
 ]
 
-export const NavbarMenu: NavbarMenuItems[] = [
-    { menu: "Home", href: "/", hasDropdown: false },
-    { menu: "Projects", href: "/projects", hasDropdown: false },
-    { menu: "Blog", href: "/blog", hasDropdown: false,},
-    { menu: "About", href: "/support", hasDropdown: true, 
-        submenu: [
-            { menu: "Work Experience", href: '/support'},
-            { menu: "Work ", href: '/support'},
-            { menu: "Experience", href: '/support'},
-        ]
+export const navItems: NavItem[] = [
+    { kind: "link", label: "Home", href: "/", icon: LuHouse },
+    { kind: "link", label: "Projects", href: "/projects", icon: LuLayoutGrid },
+    { kind: "link", label: "Blog", href: "/blog", icon: LuBookOpen },
+    {
+        kind: "menu",
+        id: "about",
+        label: "About",
+        icon: LuUser,
+        children: [
+            { label: "About Me", href: "/about" },
+            { label: "Gallery", href: "/gallery" },
+        ],
     },
-    {menu: "Learn From Me", href: "/learn", hasDropdown: true,
-        submenu: [
-            { menu: "Javascript", href: '/support'},
-            { menu: "HTML", href: '/support'},
-            { menu: "CSS", href: '/support'},
-        ]
-    }
+    {
+        kind: "menu",
+        id: "learn",
+        label: "Learn From Me",
+        icon: LuGraduationCap,
+        children: [
+            { label: "Coding Courses", href: "/learn/coding-courses" },
+        ],
+    },
 ]
+
+export const startProjectLink = { label: "Start A Project", href: "/start-a-project", icon: LuRocket }

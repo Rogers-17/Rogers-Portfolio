@@ -10,16 +10,16 @@ const socials = [
 
 const navigate = [
     { label: "Home", href: "/" },
-    { label: "Projects", href: "/" },
+    { label: "Projects", href: "/projects" },
     { label: "Blog", href: "/blog" },
-    { label: "About", href: "/" },
+    { label: "About", href: "/about" },
 ]
 
 const services = [
-    { label: "Web Design", href: "/" },
-    { label: "Web Development", href: "/" },
-    { label: "UI / UX", href: "/" },
-    { label: "Learn From Me", href: "/learn" },
+    { label: "Web Design", href: "/about#services" },
+    { label: "Web Development", href: "/about#services" },
+    { label: "UI / UX", href: "/about#services" },
+    { label: "Learn From Me", href: "/learn/coding-courses" },
 ]
 
 export default function Footer () {
