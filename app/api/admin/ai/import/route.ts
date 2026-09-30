@@ -57,7 +57,7 @@ export async function POST (request: Request) {
             return fail(400, "no_text", "Couldn't find enough text. If the PDF is a scanned image, paste the text instead.")
         }
 
-        const result = await generateJson({ supabase: auth.ctx.supabase, action: "import", schema: aiDocument, maxTokens: 8000, temperature: 0.1, messages: importMessages(text) })
+        const result = await generateJson({ supabase: auth.ctx.supabase, action: "import", schema: aiDocument, maxTokens: 5000, temperature: 0.1, messages: importMessages(text) })
 
         const contact = result.data.contact as Record<string, unknown>
         const details = Array.isArray(contact.details) ? (contact.details as Record<string, unknown>[]).slice(0, 8).map(detail => ({ ...detail, id: newId() })) : []

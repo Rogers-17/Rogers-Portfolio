@@ -60,6 +60,8 @@ export async function generateJson<T extends z.ZodType> ({ supabase, action, mes
 
     let conversation = [...messages]
     let calls = 0
+    let tokenBudget = maxTokens
+    let shrunk = false
 
     // One retry when the model returns invalid JSON or the wrong shape.
     for (let attempt = 0; attempt < 2; attempt++) {
@@ -76,7 +78,7 @@ export async function generateJson<T extends z.ZodType> ({ supabase, action, mes
                 body: JSON.stringify({
                     model: settings.ai_model,
                     messages: conversation,
-                    max_tokens: maxTokens,
+                    max_tokens: tokenBudget,
                     temperature,
                     response_format: { type: "json_object" },
                     usage: { include: true },
@@ -98,10 +100,24 @@ export async function generateJson<T extends z.ZodType> ({ supabase, action, mes
         }
 
         if (!response.ok || !payload) {
+            const message = payload?.error?.message ?? ""
+
+            // 402 "…can only afford N": OpenRouter reserves credit for max_tokens up front, so
+            // retry once with what the key can afford (most answers need far fewer tokens).
+            const affordable = Number(message.match(/can only afford (\d+)/i)?.[1] ?? 0)
+            if (response.status === 402 && !shrunk && affordable >= 600 && affordable < tokenBudget) {
+                shrunk = true
+                tokenBudget = affordable - 50
+                attempt--
+                continue
+            }
+
             await log(supabase, { action, model: settings.ai_model, ok: false })
-            console.error("[ai] OpenRouter error:", response.status, payload?.error?.message)
+            console.error("[ai] OpenRouter error:", response.status, message)
             if (response.status === 401) throw new AiError(502, "ai_auth", "The OpenRouter API key was rejected. Check OPEN_ROUTER_API_KEY.")
-            if (response.status === 402) throw new AiError(402, "ai_credits", "Your OpenRouter account is out of credits.")
+            if (response.status === 402) {
+                throw new AiError(402, "ai_credits", "Your OpenRouter credits (or this key's spending limit) are too low for this request. Add credits or raise the key's limit at openrouter.ai → Keys.")
+            }
             if (response.status === 429) throw new AiError(429, "ai_busy", "The AI service is busy. Wait a moment and try again.")
             if (response.status === 400 || response.status === 404) throw new AiError(502, "ai_model", `The model "${settings.ai_model}" rejected the request. Check the model in Resume settings.`)
             throw new AiError(502, "ai_failed", "The AI service returned an error. Try again.")
