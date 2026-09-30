@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { LuGraduationCap } from "react-icons/lu"
 import ComingSoon from "@/components/ui/ComingSoon"
 import PageHeader from "@/components/ui/PageHeader"
-import CallToAction from "@/sections/CallToAction"
+import LetsWorkCTA from "@/sections/LetsWorkCTA"
 
 export const metadata: Metadata = {
     title: "Coding Courses | Rogers Portfolio",
@@ -23,7 +23,7 @@ export default function CodingCoursesPage () {
                     secondary={{ label: "About me", href: "/about" }}
                 />
             </main>
-            <CallToAction />
+            <LetsWorkCTA />
         </>
     )
 }

@@ -3,7 +3,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { FiArrowDown, FiArrowLeft, FiArrowRight, FiChevronLeft, FiExternalLink } from "react-icons/fi"
-import CallToAction from "@/sections/CallToAction"
+import LetsWorkCTA from "@/sections/LetsWorkCTA"
 import DetailSection from "@/components/projects/DetailSection"
 import FeatureAccordion from "@/components/projects/FeatureAccordion"
 import ImagePlaceholder from "@/components/projects/ImagePlaceholder"
@@ -203,7 +203,7 @@ export default async function ProjectDetailPage ({ params }: Props) {
                 )}
             </main>
 
-            <CallToAction />
+            <LetsWorkCTA />
         </>
     )
 }

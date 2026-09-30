@@ -1,8 +1,10 @@
 import Link from "next/link"
 import { LuArrowRight } from "react-icons/lu"
 
-// Minimal centred CTA used at the end of the About and Gallery pages.
-export default function LetsWorkCTA ({ title, label }: { title: string, label: string }) {
+// The site-wide closing CTA ("Ready to create something huge? / Let's Work →").
+export const DEFAULT_CTA = { title: "Ready to create something huge?", label: "Let's Work" }
+
+export default function LetsWorkCTA ({ title = DEFAULT_CTA.title, label = DEFAULT_CTA.label }: { title?: string, label?: string }) {
     return (
         <section className="relative bg-surface px-5 py-24 text-center md:py-32" aria-labelledby="lets-work-heading">
             <h2 id="lets-work-heading" className="text-2xl font-bold leading-tight md:text-4xl">{title}</h2>

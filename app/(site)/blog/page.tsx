@@ -1,43 +1,69 @@
 import type { Metadata } from "next"
-import { LuBookOpen } from "react-icons/lu"
-import ComingSoon from "@/components/ui/ComingSoon"
-import PageHeader from "@/components/ui/PageHeader"
+import Link from "next/link"
+import { LuArrowRight, LuBookmark } from "react-icons/lu"
+import PostCard from "@/components/blog/PostCard"
+import Badge from "@/components/ui/Badge"
+import { getBlogPage, getPublishedPosts } from "@/lib/blog/queries"
+import LetsWorkCTA from "@/sections/LetsWorkCTA"
 
 export const metadata: Metadata = {
     title: "Blog | Rogers Portfolio",
-    description: "Design, code and product lessons from shipping real products. Coming soon.",
+    description: "Thoughts, ideas and lessons on design, code and building products.",
 }
 
-export default function BlogPage () {
-    return (
-        <main className="mx-auto w-full px-5 pb-24 sm:max-w-(--breakpoint-sm) md:max-w-(--breakpoint-md) lg:max-w-(--breakpoint-lg) lg:px-20">
-            <PageHeader
-                badge="Blog ✍🏽"
-                title="Notes from the build."
-                highlight="Coming soon."
-                intro="Design, code and product lessons from shipping real products."
-            />
-            <ComingSoon
-                icon={LuBookOpen}
-                title="First posts are on the way"
-                body="I'm writing up the lessons behind the projects: design systems, full-stack builds, AI products and the business side of freelancing."
-                topics={["Design Systems", "Next.js", "Supabase", "AI Products", "Freelancing"]}
-                primary={{ label: "See my work", href: "/projects" }}
-                secondary={{ label: "Start a project", href: "/start-a-project" }}
-            />
+type Props = { searchParams: Promise<{ page?: string }> }
 
-            {/* Decorative preview of the future post layout. */}
-            <div className="mt-10 grid gap-5 md:grid-cols-3" aria-hidden="true">
-                {[0, 1, 2].map(index => (
-                    <div key={index} className="rounded-2xl border border-white/6 bg-white/3 p-4 opacity-60">
-                        <div className="aspect-[16/10] animate-pulse rounded-xl bg-white/6" />
-                        <span className="mt-4 inline-block rounded-full bg-accent-1/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-accent-1">Coming soon</span>
-                        <div className="mt-3 h-4 w-4/5 animate-pulse rounded bg-white/8" />
-                        <div className="mt-2 h-3 w-full animate-pulse rounded bg-white/5" />
-                        <div className="mt-2 h-3 w-2/3 animate-pulse rounded bg-white/5" />
+const container = "mx-auto w-full px-5 sm:max-w-(--breakpoint-sm) md:max-w-(--breakpoint-md) lg:max-w-(--breakpoint-lg) lg:px-20"
+
+export default async function BlogPage ({ searchParams }: Props) {
+    const rawPage = Number((await searchParams).page ?? 1)
+    const pageNumber = Number.isInteger(rawPage) && rawPage > 0 && rawPage < 1000 ? rawPage : 1
+    const [page, { posts, hasMore }] = await Promise.all([getBlogPage(), getPublishedPosts(pageNumber)])
+
+    return (
+        <main className="bg-surface">
+            <section className={`${container} pt-10 md:pt-14`}>
+                <Badge>{page.badge}</Badge>
+                <h1 className="mt-5 text-3xl leading-tight font-bold md:text-4xl lg:text-[2.5rem]">
+                    {page.title}
+                    <br />
+                    <span className="bg-linear-65/srgb from-accent-1 to-accent-2 bg-clip-text text-transparent">{page.highlight}</span>
+                </h1>
+                <p className="mt-5 max-w-136 text-[15px] leading-relaxed text-fg/85 md:text-base">{page.intro}</p>
+                {page.substack_url && (
+                    <a href={page.substack_url} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-white underline-offset-4 hover:underline">
+                        <LuBookmark className="size-4 fill-current" aria-hidden="true" />
+                        Follow me on Substack
+                    </a>
+                )}
+            </section>
+
+            <section className={`${container} pt-12 pb-4 md:pt-14`} aria-label="Articles">
+                {posts.length === 0 ? (
+                    <p className="rounded-2xl border border-dashed border-white/12 p-10 text-center text-muted">No posts yet. Check back soon.</p>
+                ) : (
+                    <div className="grid items-start gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
+                        {posts.map(post => <PostCard key={post.id} post={post} />)}
                     </div>
-                ))}
-            </div>
+                )}
+                {(hasMore || pageNumber > 1) && (
+                    <nav className="mt-10 flex items-center justify-center gap-4" aria-label="Pagination">
+                        {pageNumber > 1 && (
+                            <Link href={pageNumber === 2 ? "/blog" : `/blog?page=${pageNumber - 1}`} className="inline-flex min-h-11 items-center rounded-full border border-white/12 px-6 text-sm font-semibold hover:border-white/30">
+                                Newer posts
+                            </Link>
+                        )}
+                        {hasMore && (
+                            <Link href={`/blog?page=${pageNumber + 1}`} className="group inline-flex min-h-11 items-center gap-2 rounded-full border border-white/12 px-6 text-sm font-semibold hover:border-accent-1">
+                                Load more
+                                <LuArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                            </Link>
+                        )}
+                    </nav>
+                )}
+            </section>
+
+            <LetsWorkCTA title={page.cta_title} label={page.cta_label} />
         </main>
     )
 }

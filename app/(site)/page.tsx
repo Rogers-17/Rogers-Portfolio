@@ -1,4 +1,4 @@
-import CallToAction from "@/sections/CallToAction";
+import LetsWorkCTA from "@/sections/LetsWorkCTA";
 import Experience from "@/sections/Experience";
 import Hero from "@/sections/Hero";
 import LogoTicker from "@/sections/LogoTicker";
@@ -13,7 +13,7 @@ export default function Home () {
       <Project />
       <Testimonials />
       <Experience />
-      <CallToAction />
+      <LetsWorkCTA />
     </>
   )
 }

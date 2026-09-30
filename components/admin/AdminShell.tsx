@@ -4,7 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import type { IconType } from "react-icons"
-import { FiBriefcase, FiClipboard, FiExternalLink, FiGrid, FiImage, FiInbox, FiLayers, FiLogOut, FiMenu, FiMessageSquare, FiUser, FiX } from "react-icons/fi"
+import { FiBriefcase, FiClipboard, FiEdit3, FiExternalLink, FiGrid, FiImage, FiInbox, FiLayers, FiLogOut, FiMenu, FiMessageSquare, FiUser, FiX } from "react-icons/fi"
 import { adminFetch } from "@/lib/admin/client"
 import { ToastProvider } from "@/components/admin/Toast"
 
@@ -15,6 +15,7 @@ const navItems: NavItem[] = [
     { href: "/admin/technologies", label: "Technologies", icon: FiLayers },
     { href: "/admin/testimonials", label: "Testimonials", icon: FiMessageSquare },
     { href: "/admin/experience", label: "Experience", icon: FiBriefcase },
+    { href: "/admin/blog", label: "Blog", icon: FiEdit3 },
     { href: "/admin/about", label: "About page", icon: FiUser },
     { href: "/admin/gallery", label: "Gallery", icon: FiImage },
     { href: "/admin/project-form", label: "Project form", icon: FiClipboard },
