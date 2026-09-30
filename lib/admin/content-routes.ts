@@ -5,16 +5,19 @@ import { requireAdminApi } from "@/lib/admin/auth"
 import { dbError, fail, ok, parseJson } from "@/lib/admin/http"
 import { contentToggleSchema, experienceInputSchema, testimonialInputSchema } from "@/lib/admin/content-schemas"
 import { getExperienceForAdmin, getTestimonialForAdmin, listExperiencesForAdmin, listTestimonialsForAdmin } from "@/lib/admin/content-queries"
-import { revalidateExperiences, revalidateTestimonials } from "@/lib/admin/revalidate"
+import { aboutFactInputSchema, galleryPhotoInputSchema } from "@/lib/admin/page-schemas"
+import { getAboutFactForAdmin, getGalleryPhotoForAdmin, listAboutFactsForAdmin, listGalleryPhotosForAdmin } from "@/lib/admin/page-queries"
+import { revalidateAbout, revalidateExperiences, revalidateGallery, revalidateTestimonials } from "@/lib/admin/revalidate"
 import { reorderSchema, uuidSchema } from "@/lib/admin/schemas"
 
-// Route handlers shared by simple, flat content tables (testimonials, experiences).
+// Route handlers shared by simple, flat content tables (testimonials, experiences, about facts, gallery photos).
 
 type ContentConfig = {
-    table: "testimonials" | "experiences"
+    table: "testimonials" | "experiences" | "about_facts" | "gallery_photos"
     label: string
     inputSchema: z.ZodType<Record<string, unknown>>
-    imageColumn: "avatar_path" | "logo_path"
+    // Storage object (site-images) removed together with the row, if any.
+    imageColumn?: "avatar_path" | "logo_path" | "image_path"
     list: (supabase: SupabaseClient) => Promise<unknown[]>
     get: (supabase: SupabaseClient, id: string) => Promise<unknown | null>
     revalidate: () => void
@@ -38,6 +41,25 @@ export const experiencesConfig: ContentConfig = {
     list: listExperiencesForAdmin,
     get: getExperienceForAdmin,
     revalidate: revalidateExperiences,
+}
+
+export const aboutFactsConfig: ContentConfig = {
+    table: "about_facts",
+    label: "Fact",
+    inputSchema: aboutFactInputSchema,
+    list: listAboutFactsForAdmin,
+    get: getAboutFactForAdmin,
+    revalidate: revalidateAbout,
+}
+
+export const galleryPhotosConfig: ContentConfig = {
+    table: "gallery_photos",
+    label: "Photo",
+    inputSchema: galleryPhotoInputSchema,
+    imageColumn: "image_path",
+    list: listGalleryPhotosForAdmin,
+    get: getGalleryPhotoForAdmin,
+    revalidate: revalidateGallery,
 }
 
 type Context = { params: Promise<{ id: string }> }
@@ -133,12 +155,12 @@ export function deleteHandler (config: ContentConfig) {
             .from(config.table)
             .delete()
             .eq("id", id.data)
-            .select(config.imageColumn)
+            .select(config.imageColumn ?? "id")
             .maybeSingle()
         if (error) return dbError(error, `delete ${config.table}`)
         if (!data) return fail(404, "not_found", `${config.label} not found.`)
 
-        const imagePath = (data as Record<string, string | null>)[config.imageColumn]
+        const imagePath = config.imageColumn ? (data as Record<string, string | null>)[config.imageColumn] : null
         if (imagePath) {
             const { error: storageError } = await supabase.storage.from("site-images").remove([imagePath])
             if (storageError) console.error(`[admin] ${config.table} image cleanup failed:`, storageError.message)

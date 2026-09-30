@@ -18,3 +18,11 @@ export function createServerSupabase (tag: string = PROJECTS_CACHE_TAG) {
         },
     })
 }
+
+// Public client for writes/RPCs: same publishable key (RLS applies), but never cached.
+export function createAnonSupabase () {
+    return createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, {
+        auth: { persistSession: false, autoRefreshToken: false },
+        global: { fetch: (input, init) => fetch(input, { ...init, cache: "no-store" }) },
+    })
+}

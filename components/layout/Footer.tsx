@@ -16,9 +16,9 @@ const navigate = [
 ]
 
 const services = [
-    { label: "Web Design", href: "/about#services" },
-    { label: "Web Development", href: "/about#services" },
-    { label: "UI / UX", href: "/about#services" },
+    { label: "Web Design", href: "/about" },
+    { label: "Web Development", href: "/about" },
+    { label: "UI / UX", href: "/about" },
     { label: "Learn From Me", href: "/learn/coding-courses" },
 ]
 

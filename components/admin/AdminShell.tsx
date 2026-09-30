@@ -4,7 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import type { IconType } from "react-icons"
-import { FiBriefcase, FiExternalLink, FiGrid, FiLayers, FiLogOut, FiMenu, FiMessageSquare, FiX } from "react-icons/fi"
+import { FiBriefcase, FiClipboard, FiExternalLink, FiGrid, FiImage, FiInbox, FiLayers, FiLogOut, FiMenu, FiMessageSquare, FiUser, FiX } from "react-icons/fi"
 import { adminFetch } from "@/lib/admin/client"
 import { ToastProvider } from "@/components/admin/Toast"
 
@@ -15,7 +15,13 @@ const navItems: NavItem[] = [
     { href: "/admin/technologies", label: "Technologies", icon: FiLayers },
     { href: "/admin/testimonials", label: "Testimonials", icon: FiMessageSquare },
     { href: "/admin/experience", label: "Experience", icon: FiBriefcase },
+    { href: "/admin/about", label: "About page", icon: FiUser },
+    { href: "/admin/gallery", label: "Gallery", icon: FiImage },
+    { href: "/admin/project-form", label: "Project form", icon: FiClipboard },
+    { href: "/admin/inquiries", label: "Inquiries", icon: FiInbox },
 ]
+
+const INQUIRIES_HREF = "/admin/inquiries"
 
 const itemBase = "relative flex items-center rounded-lg text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-1"
 const itemState = (active: boolean) => (active ? "bg-white/6 text-white" : "text-muted hover:bg-white/4 hover:text-white")
@@ -24,7 +30,15 @@ function ActiveBar () {
     return <span className="absolute inset-y-2 left-0 w-1 rounded-full bg-linear-to-b from-accent-1 to-accent-2" aria-hidden="true" />
 }
 
-export default function AdminShell ({ email, children }: { email: string, children: React.ReactNode }) {
+function CountBadge ({ count, compact = false }: { count: number, compact?: boolean }) {
+    if (count <= 0) return null
+    const label = count > 99 ? "99+" : String(count)
+    return compact
+        ? <span className="absolute top-1 right-1 min-w-4 rounded-full bg-accent-1 px-1 text-center text-[10px] leading-4 font-bold text-white">{label}<span className="sr-only"> new</span></span>
+        : <span className="ml-auto rounded-full bg-accent-1 px-2 py-0.5 text-[11px] leading-none font-bold text-white">{label}<span className="sr-only"> new</span></span>
+}
+
+export default function AdminShell ({ email, newInquiries = 0, children }: { email: string, newInquiries?: number, children: React.ReactNode }) {
     const pathname = usePathname()
     const [drawerOpen, setDrawerOpen] = React.useState(false)
     const [signingOut, setSigningOut] = React.useState(false)
@@ -101,6 +115,7 @@ export default function AdminShell ({ email, children }: { email: string, childr
                                     {isActive(href) && <ActiveBar />}
                                     <Icon aria-hidden="true" />
                                     {label}
+                                    {href === INQUIRIES_HREF && <CountBadge count={newInquiries} />}
                                 </Link>
                             ))}
                             <a href="/" target="_blank" rel="noopener noreferrer" className={`${itemBase} ${itemState(false)} gap-3 px-4 py-2.5`}>
@@ -127,6 +142,7 @@ export default function AdminShell ({ email, children }: { email: string, childr
                                 <Link key={href} href={href} aria-label={label} title={label} aria-current={isActive(href) ? "page" : undefined} className={`${itemBase} ${itemState(isActive(href))} size-11 justify-center text-lg`}>
                                     {isActive(href) && <ActiveBar />}
                                     <Icon aria-hidden="true" />
+                                    {href === INQUIRIES_HREF && <CountBadge count={newInquiries} compact />}
                                 </Link>
                             ))}
                             <a href="/" target="_blank" rel="noopener noreferrer" aria-label="View site" title="View site" className={`${itemBase} ${itemState(false)} size-11 justify-center text-lg`}>
@@ -184,6 +200,7 @@ export default function AdminShell ({ email, children }: { email: string, childr
                                         {isActive(href) && <ActiveBar />}
                                         <Icon aria-hidden="true" />
                                         {label}
+                                        {href === INQUIRIES_HREF && <CountBadge count={newInquiries} />}
                                     </Link>
                                 ))}
                                 <a href="/" target="_blank" rel="noopener noreferrer" className={`${itemBase} ${itemState(false)} min-h-12 gap-3 px-4`}>

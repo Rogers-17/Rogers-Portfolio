@@ -2,6 +2,7 @@ import "server-only"
 import { revalidatePath, revalidateTag } from "next/cache"
 import { PROJECTS_CACHE_TAG } from "@/lib/projects/cache"
 import { EXPERIENCES_CACHE_TAG, TESTIMONIALS_CACHE_TAG } from "@/lib/content/cache"
+import { ABOUT_CACHE_TAG, GALLERY_CACHE_TAG, PROJECT_FORM_CACHE_TAG } from "@/lib/pages/cache"
 
 // Expire cached data immediately and regenerate public pages on their next visit.
 export function revalidateProjects () {
@@ -19,4 +20,19 @@ export function revalidateTestimonials () {
 export function revalidateExperiences () {
     revalidateTag(EXPERIENCES_CACHE_TAG, { expire: 0 })
     revalidatePath("/")
+}
+
+export function revalidateAbout () {
+    revalidateTag(ABOUT_CACHE_TAG, { expire: 0 })
+    revalidatePath("/about")
+}
+
+export function revalidateGallery () {
+    revalidateTag(GALLERY_CACHE_TAG, { expire: 0 })
+    revalidatePath("/gallery")
+}
+
+export function revalidateProjectForm () {
+    revalidateTag(PROJECT_FORM_CACHE_TAG, { expire: 0 })
+    revalidatePath("/start-a-project")
 }

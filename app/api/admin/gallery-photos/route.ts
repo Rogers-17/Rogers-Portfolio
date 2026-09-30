@@ -1,0 +1,3 @@
+import { collectionHandlers, galleryPhotosConfig } from "@/lib/admin/content-routes"
+
+export const { GET, POST } = collectionHandlers(galleryPhotosConfig)

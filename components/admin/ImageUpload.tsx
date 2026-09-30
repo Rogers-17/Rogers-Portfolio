@@ -3,18 +3,23 @@
 import * as React from "react"
 import Image from "next/image"
 import { FiUploadCloud, FiX } from "react-icons/fi"
-import { adminFetch } from "@/lib/admin/client"
+import { adminFetch, type ApiResult } from "@/lib/admin/client"
+import { imageSize, resizeImage } from "@/components/admin/image-resize"
 import type { StorageBucket } from "@/lib/storage"
+
+export type UploadedImage = { path: string, url: string, width?: number, height?: number }
 
 type Props = {
     bucket: StorageBucket
     folder: string
     path: string | null
     url: string | null
-    onChange: (value: { path: string, url: string } | null) => void
+    onChange: (value: UploadedImage | null) => void
     label?: string
     aspectClass?: string
     error?: string
+    // Downscale + convert to WebP in the browser before uploading (max long edge, px).
+    resize?: number
 }
 
 const ACCEPT: Record<StorageBucket, string> = {
@@ -23,7 +28,29 @@ const ACCEPT: Record<StorageBucket, string> = {
     "site-images": "image/png,image/jpeg,image/webp,image/avif",
 }
 
-export default function ImageUpload ({ bucket, folder, path, url, onChange, label = "Upload image", aspectClass = "aspect-[16/10]", error }: Props) {
+// Uploads one image (optionally resized first) and reports its pixel size when known.
+export async function uploadImage (bucket: StorageBucket, folder: string, file: File, resize?: number): Promise<ApiResult<UploadedImage>> {
+    let upload = file
+    let size: { width: number, height: number } | null = null
+    if (resize) {
+        const resized = await resizeImage(file, resize)
+        if (resized) {
+            upload = resized.file
+            size = { width: resized.width, height: resized.height }
+        }
+    }
+    size ??= await imageSize(upload)
+
+    const body = new FormData()
+    body.set("bucket", bucket)
+    body.set("folder", folder)
+    body.set("file", upload)
+
+    const result = await adminFetch<{ path: string, url: string }>("/api/admin/uploads", { body })
+    return result.ok ? { ok: true, data: { ...result.data, ...(size ?? {}) } } : result
+}
+
+export default function ImageUpload ({ bucket, folder, path, url, onChange, label = "Upload image", aspectClass = "aspect-16/10", error, resize }: Props) {
     const inputRef = React.useRef<HTMLInputElement>(null)
     const [uploading, setUploading] = React.useState(false)
     const [uploadError, setUploadError] = React.useState<string | null>(null)
@@ -81,7 +108,7 @@ export default function ImageUpload ({ bucket, folder, path, url, onChange, labe
             <input
                 ref={inputRef}
                 type="file"
-                accept={ACCEPT[bucket]}
+                accept={resize ? "image/*" : ACCEPT[bucket]}
                 className="sr-only"
                 tabIndex={-1}
                 aria-label={label}
