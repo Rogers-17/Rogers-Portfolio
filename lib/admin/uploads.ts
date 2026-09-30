@@ -7,6 +7,7 @@ export const BUCKET_RULES: Record<StorageBucket, { maxBytes: number, allowed: Im
     "project-images": { maxBytes: 5 * 1024 * 1024, allowed: ["png", "jpg", "webp", "avif", "gif"] },
     "tech-icons": { maxBytes: 1024 * 1024, allowed: ["svg", "png", "webp"] },
     "site-images": { maxBytes: 2 * 1024 * 1024, allowed: ["png", "jpg", "webp", "avif"] },
+    "resume-assets": { maxBytes: 5 * 1024 * 1024, allowed: ["png", "jpg", "webp"] },
 }
 
 const startsWith = (bytes: Uint8Array, signature: number[], offset = 0) =>

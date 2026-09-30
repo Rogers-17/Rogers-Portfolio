@@ -2,7 +2,7 @@ import { requireAdminApi } from "@/lib/admin/auth"
 import { fail, ok } from "@/lib/admin/http"
 import { uploadBuckets, uploadFolderSchema } from "@/lib/admin/schemas"
 import { BUCKET_RULES, isUnsafeSvg, sniffImage } from "@/lib/admin/uploads"
-import { publicImageUrl, type StorageBucket } from "@/lib/storage"
+import { PRIVATE_BUCKETS, publicImageUrl, type StorageBucket } from "@/lib/storage"
 
 const MAX_REQUEST_BYTES = 5 * 1024 * 1024 + 64 * 1024 // largest file + multipart overhead
 
@@ -53,6 +53,16 @@ export async function POST (request: Request) {
     if (error) {
         console.error("[admin] upload failed:", error.message)
         return fail(500, "upload_failed", "Upload failed. Please try again.")
+    }
+
+    // Private buckets get a short-lived signed URL for the preview instead of a public one.
+    if (PRIVATE_BUCKETS.includes(bucket as StorageBucket)) {
+        const { data: signed, error: signError } = await auth.ctx.supabase.storage.from(bucket).createSignedUrl(path, 3600)
+        if (signError) {
+            console.error("[admin] sign upload failed:", signError.message)
+            return fail(500, "upload_failed", "Upload failed. Please try again.")
+        }
+        return ok({ path, url: signed.signedUrl }, 201)
     }
 
     return ok({ path, url: publicImageUrl(bucket as StorageBucket, path) }, 201)

@@ -26,6 +26,7 @@ const ACCEPT: Record<StorageBucket, string> = {
     "project-images": "image/png,image/jpeg,image/webp,image/avif,image/gif",
     "tech-icons": "image/svg+xml,image/png,image/webp",
     "site-images": "image/png,image/jpeg,image/webp,image/avif",
+    "resume-assets": "image/png,image/jpeg,image/webp",
 }
 
 // Uploads one image (optionally resized first) and reports its pixel size when known.
