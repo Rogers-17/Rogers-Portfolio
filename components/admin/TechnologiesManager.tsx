@@ -71,7 +71,7 @@ export default function TechnologiesManager ({ technologies }: { technologies: A
     return (
         <div className="flex flex-col gap-6">
             {draft ? (
-                <Card title={draft.id ? `Edit ${draft.name || "technology"}` : "Add technology"} hint="Icon: SVG, PNG or WEBP up to 1 MB. SVGs with scripts are rejected.">
+                <Card title={draft.id ? `Edit ${draft.name || "technology"}` : "Add technology"} hint="Icon: SVG, PNG or WEBP up to 10 MB. SVGs with scripts are rejected.">
                     <form
                         onSubmit={event => { event.preventDefault(); void save() }}
                         noValidate

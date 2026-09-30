@@ -30,8 +30,7 @@ export default function CoverLetterList ({ letters, defaultResumeId }: { letters
         <>
             <div className="mb-6 flex flex-wrap items-end justify-between gap-4 md:mb-8">
                 <div className="min-w-0">
-                    <p className="text-[11px] font-semibold tracking-[0.2em] text-dim uppercase"><span className="text-accent-1">03</span> / Career</p>
-                    <h1 className="mt-1 text-2xl font-bold md:text-3xl">Cover letters</h1>
+                    <h1 className="text-2xl font-bold md:text-3xl">Cover letters</h1>
                     <p className="mt-1 text-sm text-muted">One per application, written from a linked resume.</p>
                 </div>
                 <button type="button" onClick={create} disabled={creating} className={primaryButtonClass}>

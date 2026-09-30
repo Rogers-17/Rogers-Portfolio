@@ -89,7 +89,7 @@ create policy "Admins can update resume settings" on public.resume_settings for 
 -- Private storage bucket for resume photos (signed URLs only)
 -- ---------------------------------------------------------------------------
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values ('resume-assets', 'resume-assets', false, 5 * 1024 * 1024, array['image/png', 'image/jpeg', 'image/webp'])
+values ('resume-assets', 'resume-assets', false, 10 * 1024 * 1024, array['image/png', 'image/jpeg', 'image/webp', 'application/pdf'])
 on conflict (id) do update
   set public = false,
       file_size_limit = excluded.file_size_limit,

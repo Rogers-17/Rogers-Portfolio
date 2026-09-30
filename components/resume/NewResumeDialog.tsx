@@ -7,6 +7,7 @@ import { inputClass } from "@/components/admin/Field"
 import { useToast } from "@/components/admin/Toast"
 import { RField, labelClass } from "@/components/resume/controls"
 import { adminFetch } from "@/lib/admin/client"
+import { directUpload } from "@/lib/admin/direct-upload"
 import { SECTION_LABELS, TEMPLATES, TEMPLATE_INFO, type ResumeData, type TemplateKey } from "@/lib/resume/schema"
 
 type Start = "blank" | "copy" | "import"
@@ -45,9 +46,13 @@ export default function NewResumeDialog ({ open, onClose, resumes, defaultTempla
         setError(null)
         let result
         if (file) {
-            const body = new FormData()
-            body.set("file", file)
-            result = await adminFetch<{ data: ResumeData }>("/api/admin/ai/import", { body })
+            const uploaded = await directUpload("resume-assets", "imports", file)
+            if (!uploaded.ok) {
+                setBusy(null)
+                setError(uploaded.error.message)
+                return
+            }
+            result = await adminFetch<{ data: ResumeData }>("/api/admin/ai/import", { json: { path: uploaded.data.path } })
         } else {
             result = await adminFetch<{ data: ResumeData }>("/api/admin/ai/import", { json: { text: pasted } })
         }
@@ -121,7 +126,7 @@ export default function NewResumeDialog ({ open, onClose, resumes, defaultTempla
                 {start === "import" && !imported && (
                     <div className="flex flex-col gap-3 rounded-xl border border-white/6 bg-white/2 p-4">
                         <label className="flex flex-col gap-1.5">
-                            <span className={labelClass}>PDF file (max 5 MB)</span>
+                            <span className={labelClass}>PDF file (max 10 MB)</span>
                             <input type="file" accept="application/pdf" onChange={event => { setFile(event.target.files?.[0] ?? null); setPasted("") }} className="text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-white/8 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white" />
                         </label>
                         <p className="text-center text-xs text-dim">or</p>

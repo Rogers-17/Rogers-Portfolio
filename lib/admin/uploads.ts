@@ -1,13 +1,28 @@
 import "server-only"
 import type { StorageBucket } from "@/lib/storage"
 
-export type ImageKind = { ext: "png" | "jpg" | "webp" | "avif" | "gif" | "svg", mime: string }
+export type ImageKind = { ext: "png" | "jpg" | "webp" | "avif" | "gif" | "svg" | "pdf", mime: string }
+
+// Every bucket accepts files up to 10 MB (matches the bucket limits in Supabase).
+export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 
 export const BUCKET_RULES: Record<StorageBucket, { maxBytes: number, allowed: ImageKind["ext"][] }> = {
-    "project-images": { maxBytes: 5 * 1024 * 1024, allowed: ["png", "jpg", "webp", "avif", "gif"] },
-    "tech-icons": { maxBytes: 1024 * 1024, allowed: ["svg", "png", "webp"] },
-    "site-images": { maxBytes: 2 * 1024 * 1024, allowed: ["png", "jpg", "webp", "avif"] },
-    "resume-assets": { maxBytes: 5 * 1024 * 1024, allowed: ["png", "jpg", "webp"] },
+    "project-images": { maxBytes: MAX_UPLOAD_BYTES, allowed: ["png", "jpg", "webp", "avif", "gif"] },
+    "tech-icons": { maxBytes: MAX_UPLOAD_BYTES, allowed: ["svg", "png", "webp"] },
+    "site-images": { maxBytes: MAX_UPLOAD_BYTES, allowed: ["png", "jpg", "webp", "avif"] },
+    // PDFs are only for CV imports (imports/ folder); they are deleted after reading.
+    "resume-assets": { maxBytes: MAX_UPLOAD_BYTES, allowed: ["png", "jpg", "webp", "pdf"] },
+}
+
+// The type the browser says it's sending, mapped to the extension used in the storage path.
+export const MIME_TO_EXT: Record<string, ImageKind["ext"]> = {
+    "image/png": "png",
+    "image/jpeg": "jpg",
+    "image/webp": "webp",
+    "image/avif": "avif",
+    "image/gif": "gif",
+    "image/svg+xml": "svg",
+    "application/pdf": "pdf",
 }
 
 const startsWith = (bytes: Uint8Array, signature: number[], offset = 0) =>
@@ -17,6 +32,7 @@ const ascii = (bytes: Uint8Array, start: number, end: number) => String.fromChar
 
 // Detects the real type from file contents; the client-provided MIME type is never trusted.
 export function sniffImage (bytes: Uint8Array): ImageKind | null {
+    if (ascii(bytes, 0, 5) === "%PDF-") return { ext: "pdf", mime: "application/pdf" }
     if (startsWith(bytes, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) return { ext: "png", mime: "image/png" }
     if (startsWith(bytes, [0xff, 0xd8, 0xff])) return { ext: "jpg", mime: "image/jpeg" }
     if (ascii(bytes, 0, 4) === "GIF8") return { ext: "gif", mime: "image/gif" }

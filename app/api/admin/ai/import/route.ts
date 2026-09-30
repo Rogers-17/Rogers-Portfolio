@@ -6,12 +6,14 @@ import { AiError, generateJson } from "@/lib/ai/openrouter"
 import { importMessages } from "@/lib/ai/prompts"
 import { SECTION_TYPES, newId, parseResumeData } from "@/lib/resume/schema"
 
-// POST /api/admin/ai/import: a PDF (multipart "file") or pasted text (JSON {"text"}) becomes
-// a resume document for you to review. Nothing is saved here.
+// POST /api/admin/ai/import: a PDF or pasted text becomes a resume document for you to review.
+// Body: {"path": "imports/<uuid>.pdf"} (uploaded straight to the private bucket; deleted after
+// reading), {"text": "..."}, or multipart "file" for API clients. Nothing is saved here.
 
 export const maxDuration = 60
 
-const MAX_PDF_BYTES = 5 * 1024 * 1024
+const MAX_PDF_BYTES = 10 * 1024 * 1024
+const IMPORT_PATH = /^imports\/[0-9a-f-]{36}\.pdf$/
 const MAX_TEXT = 40_000
 const MAX_PAGES = 12
 
@@ -25,7 +27,7 @@ const aiDocument = z.object({
     })).max(30),
 })
 
-async function readPdf (file: File) {
+async function readPdf (file: Blob) {
     const bytes = new Uint8Array(await file.arrayBuffer())
     if (String.fromCharCode(...bytes.slice(0, 5)) !== "%PDF-") throw new AiError(400, "invalid_type", "That file isn't a PDF.")
     const pdf = await getDocumentProxy(bytes)
@@ -41,15 +43,30 @@ export async function POST (request: Request) {
     try {
         let text: string
         if (request.headers.get("content-type")?.includes("multipart/form-data")) {
-            if (Number(request.headers.get("content-length") ?? 0) > MAX_PDF_BYTES + 64 * 1024) return fail(413, "too_large", "PDF is too large (max 5 MB).")
+            if (Number(request.headers.get("content-length") ?? 0) > MAX_PDF_BYTES + 64 * 1024) return fail(413, "too_large", "PDF is too large (max 10 MB).")
             const form = await request.formData().catch(() => null)
             const file = form?.get("file")
             if (!(file instanceof File) || file.size === 0) return fail(400, "missing_file", "Choose a PDF to import.")
-            if (file.size > MAX_PDF_BYTES) return fail(413, "too_large", "PDF is too large (max 5 MB).")
+            if (file.size > MAX_PDF_BYTES) return fail(413, "too_large", "PDF is too large (max 10 MB).")
             text = await readPdf(file)
         } else {
-            const body = await request.json().catch(() => null) as { text?: unknown } | null
-            text = typeof body?.text === "string" ? body.text : ""
+            const body = await request.json().catch(() => null) as { text?: unknown, path?: unknown } | null
+            if (typeof body?.path === "string") {
+                if (!IMPORT_PATH.test(body.path)) return fail(400, "invalid_path", "Invalid upload path.")
+                const storage = auth.ctx.supabase.storage.from("resume-assets")
+                const { data: blob, error } = await storage.download(body.path)
+                if (error || !blob) return fail(404, "not_found", "Uploaded PDF not found. Please upload it again.")
+                try {
+                    if (blob.size > MAX_PDF_BYTES) return fail(413, "too_large", "PDF is too large (max 10 MB).")
+                    text = await readPdf(blob)
+                } finally {
+                    // The CV is only needed for this request.
+                    const { error: removeError } = await storage.remove([body.path])
+                    if (removeError) console.error("[ai] import cleanup failed:", removeError.message)
+                }
+            } else {
+                text = typeof body?.text === "string" ? body.text : ""
+            }
         }
 
         text = text.replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim().slice(0, MAX_TEXT)

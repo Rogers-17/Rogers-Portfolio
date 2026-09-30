@@ -4,7 +4,7 @@ import * as React from "react"
 import type { ReactElement } from "react"
 import type { DocumentProps } from "@react-pdf/renderer"
 import { LuDownload, LuExternalLink, LuLoaderCircle } from "react-icons/lu"
-import { downloadBlob, renderPdfBlob, safeFilename } from "@/components/resume/pdf/client"
+import { downloadBlob, renderPdfBlob, safeFilename, toPdfImage } from "@/components/resume/pdf/client"
 import type { ResumeData, ResumeDesign, TemplateKey } from "@/lib/resume/schema"
 
 const DEBOUNCE_MS = 700
@@ -115,8 +115,11 @@ export default function PdfPreview ({ template, design, data, photoUrl, title, o
         <PdfViewer
             documentKey={JSON.stringify({ template, design, data, photoUrl, title })}
             build={async () => {
-                const { default: ResumeDocument } = await import("@/components/resume/pdf/ResumeDocument")
-                return <ResumeDocument template={template} design={design} data={data} photoUrl={photoUrl} title={title} />
+                const [{ default: ResumeDocument }, photo] = await Promise.all([
+                    import("@/components/resume/pdf/ResumeDocument"),
+                    design.showPhoto ? toPdfImage(photoUrl) : Promise.resolve(null),
+                ])
+                return <ResumeDocument template={template} design={design} data={data} photoUrl={photo} title={title} />
             }}
             filename={title}
             onPages={onPages}

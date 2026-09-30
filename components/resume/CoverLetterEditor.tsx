@@ -106,7 +106,7 @@ export default function CoverLetterEditor ({ letter, resumes }: { letter: CoverL
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="min-w-0">
                     <nav aria-label="Breadcrumb" className="text-[11px] font-semibold tracking-[0.2em] text-dim uppercase">
-                        <Link href="/admin/resumes" className="hover:text-white">Career</Link><span className="mx-2">/</span>
+                        <Link href="/admin" className="hover:text-white">Dashboard</Link><span className="mx-2">/</span>
                         <Link href="/admin/cover-letters" className="hover:text-white">Cover letters</Link><span className="mx-2">/</span>
                         <span className="text-fg">Editor</span>
                     </nav>

@@ -202,7 +202,7 @@ export default function ExperienceForm ({ experience }: { experience?: AdminExpe
                 />
             </Card>
 
-            <Card title="Company logo" hint="Square image, PNG/JPG/WEBP/AVIF up to 2 MB (optional).">
+            <Card title="Company logo" hint="Square image, PNG/JPG/WEBP/AVIF up to 10 MB (optional).">
                 <div className="w-full max-w-40">
                     <ImageUpload
                         bucket="site-images"

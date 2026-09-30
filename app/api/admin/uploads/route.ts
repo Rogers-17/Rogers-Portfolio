@@ -1,10 +1,12 @@
 import { requireAdminApi } from "@/lib/admin/auth"
 import { fail, ok } from "@/lib/admin/http"
 import { uploadBuckets, uploadFolderSchema } from "@/lib/admin/schemas"
-import { BUCKET_RULES, isUnsafeSvg, sniffImage } from "@/lib/admin/uploads"
+import { BUCKET_RULES, MAX_UPLOAD_BYTES, isUnsafeSvg, sniffImage } from "@/lib/admin/uploads"
 import { PRIVATE_BUCKETS, publicImageUrl, type StorageBucket } from "@/lib/storage"
 
-const MAX_REQUEST_BYTES = 5 * 1024 * 1024 + 64 * 1024 // largest file + multipart overhead
+// Direct multipart upload (used by API clients). The dashboard uploads straight to Supabase via
+// /api/admin/uploads/sign + /confirm, because Vercel caps request bodies at ~4.5 MB.
+const MAX_REQUEST_BYTES = MAX_UPLOAD_BYTES + 64 * 1024 // largest file + multipart overhead
 
 export async function POST (request: Request) {
     const auth = await requireAdminApi(request)

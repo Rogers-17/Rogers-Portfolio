@@ -286,7 +286,7 @@ export default function ProjectForm ({ project, technologies }: Props) {
                 <TextField label="Website URL" type="url" placeholder="https://" value={state.website_url} onChange={event => set("website_url", event.target.value)} error={errors.website_url} hint="Shows the “Visit website” button when set." />
             </Card>
 
-            <Card title="Cover image" hint="Used on project cards and the detail page header. PNG, JPG, WEBP, AVIF or GIF up to 5 MB.">
+            <Card title="Cover image" hint="Used on project cards and the detail page header. PNG, JPG, WEBP, AVIF or GIF up to 10 MB.">
                 <div className="grid gap-5 lg:grid-cols-2">
                     <ImageUpload
                         bucket="project-images"

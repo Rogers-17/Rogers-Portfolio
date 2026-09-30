@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { LuArchive, LuArchiveRestore, LuCopy, LuPencil, LuPlus, LuTrash2 } from "react-icons/lu"
+import { LuArchive, LuArchiveRestore, LuCopy, LuPencil, LuPlus, LuSettings2, LuTrash2 } from "react-icons/lu"
 import { primaryButtonClass } from "@/components/admin/Field"
 import { useToast } from "@/components/admin/Toast"
 import { Thumb } from "@/components/resume/DesignForm"
@@ -44,11 +44,13 @@ export default function ResumeList ({ resumes, archived, defaultTemplate }: { re
         <>
             <div className="mb-6 flex flex-wrap items-end justify-between gap-4 md:mb-8">
                 <div className="min-w-0">
-                    <p className="text-[11px] font-semibold tracking-[0.2em] text-dim uppercase"><span className="text-accent-1">03</span> / Career</p>
-                    <h1 className="mt-1 text-2xl font-bold md:text-3xl">Resumes</h1>
+                    <h1 className="text-2xl font-bold md:text-3xl">Resumes</h1>
                     <p className="mt-1 text-sm text-muted">One resume per job or field. Duplicate one to tailor it.</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
+                    <Link href="/admin/resume-settings" aria-label="Resume settings" title="AI model, daily limit and defaults" className="inline-flex size-10 items-center justify-center rounded-full border border-white/10 text-muted hover:border-accent-1 hover:text-white">
+                        <LuSettings2 aria-hidden="true" />
+                    </Link>
                     <Link href={archived ? "/admin/resumes" : "/admin/resumes?archived=1"} className="inline-flex min-h-10 items-center rounded-full border border-white/10 px-4 text-sm font-semibold text-muted hover:text-white">
                         {archived ? "Active resumes" : "Archived"}
                     </Link>

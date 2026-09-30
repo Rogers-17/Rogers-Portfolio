@@ -3,7 +3,8 @@
 import * as React from "react"
 import Image from "next/image"
 import { FiUploadCloud, FiX } from "react-icons/fi"
-import { adminFetch, type ApiResult } from "@/lib/admin/client"
+import type { ApiResult } from "@/lib/admin/client"
+import { directUpload } from "@/lib/admin/direct-upload"
 import { imageSize, resizeImage } from "@/components/admin/image-resize"
 import type { StorageBucket } from "@/lib/storage"
 
@@ -42,12 +43,7 @@ export async function uploadImage (bucket: StorageBucket, folder: string, file: 
     }
     size ??= await imageSize(upload)
 
-    const body = new FormData()
-    body.set("bucket", bucket)
-    body.set("folder", folder)
-    body.set("file", upload)
-
-    const result = await adminFetch<{ path: string, url: string }>("/api/admin/uploads", { body })
+    const result = await directUpload(bucket, folder, upload)
     return result.ok ? { ok: true, data: { ...result.data, ...(size ?? {}) } } : result
 }
 
@@ -59,12 +55,7 @@ export default function ImageUpload ({ bucket, folder, path, url, onChange, labe
     async function handleFile (file: File) {
         setUploading(true)
         setUploadError(null)
-        const body = new FormData()
-        body.set("bucket", bucket)
-        body.set("folder", folder)
-        body.set("file", file)
-
-        const result = await adminFetch<{ path: string, url: string }>("/api/admin/uploads", { body })
+        const result = await uploadImage(bucket, folder, file, resize)
         setUploading(false)
         if (inputRef.current) inputRef.current.value = ""
 

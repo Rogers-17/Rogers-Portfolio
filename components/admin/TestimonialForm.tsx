@@ -131,7 +131,7 @@ export default function TestimonialForm ({ testimonial }: { testimonial?: AdminT
                 </SelectField>
             </Card>
 
-            <Card title="Avatar" hint="Square photo, PNG/JPG/WEBP/AVIF up to 2 MB. Without one, initials are shown.">
+            <Card title="Avatar" hint="Square photo, PNG/JPG/WEBP/AVIF up to 10 MB. Without one, initials are shown.">
                 <div className="w-full max-w-40">
                     <ImageUpload
                         bucket="site-images"
