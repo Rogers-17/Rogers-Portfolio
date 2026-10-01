@@ -251,7 +251,7 @@ export default function DocumentArchive ({ initialDocuments, initialFilter, toda
                 />
             </div>
 
-            <UploadQueue items={uploads.items} onRetry={uploads.retry} onDismiss={uploads.dismiss} />
+            <UploadQueue items={uploads.items} onRetry={uploads.retry} onCancel={uploads.cancel} onDismiss={uploads.dismiss} />
 
             {documents.length === 0 ? (
                 <button
@@ -261,7 +261,7 @@ export default function DocumentArchive ({ initialDocuments, initialFilter, toda
                 >
                     <span className="inline-flex size-14 items-center justify-center rounded-2xl bg-accent-1/10 text-2xl text-accent-1"><LuCloudUpload aria-hidden="true" /></span>
                     <span className="mt-4 font-semibold">Your archive is empty</span>
-                    <span className="mt-1 max-w-md text-sm text-muted">Drop CVs, transcripts, certificates, project reports or contracts here, or click to choose files. PDF, images, Office files, text and ZIP up to 10 MB each.</span>
+                    <span className="mt-1 max-w-md text-sm text-muted">Drop CVs, transcripts, certificates, project reports or contracts here, or click to choose files. PDF, images, Office files, text and ZIP up to 50 MB each.</span>
                 </button>
             ) : (
                 <>
@@ -325,7 +325,7 @@ export default function DocumentArchive ({ initialDocuments, initialFilter, toda
                     <div className="flex w-full max-w-xl flex-col items-center rounded-3xl border-2 border-dashed border-accent-1 bg-card/90 px-8 py-14 text-center">
                         <LuCloudUpload className="text-4xl text-accent-1" />
                         <p className="mt-3 text-lg font-bold">Drop to upload to {DOCUMENT_GROUP_INFO[uploadGroup].label}</p>
-                        <p className="mt-1 text-sm text-muted">Up to 10 MB per file. You can change the group afterwards.</p>
+                        <p className="mt-1 text-sm text-muted">Up to 50 MB per file. You can change the group afterwards.</p>
                     </div>
                 </div>
             )}

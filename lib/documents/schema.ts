@@ -39,7 +39,8 @@ export const FORMAT_MIME: Record<DocumentFormat, string> = {
 export const PREVIEWABLE: readonly DocumentFormat[] = ["pdf", "png", "jpg", "webp"]
 export const IMAGE_FORMATS: readonly DocumentFormat[] = ["png", "jpg", "webp"]
 
-export const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024
+export const MAX_DOCUMENT_MB = 50
+export const MAX_DOCUMENT_BYTES = MAX_DOCUMENT_MB * 1024 * 1024
 export const DOCUMENT_ACCEPT = DOCUMENT_FORMATS.map(format => `.${format}`).concat(".jpeg").join(",")
 
 // "Report.Final.PDF" -> "pdf"; "photo.jpeg" -> "jpg"; unknown -> null.

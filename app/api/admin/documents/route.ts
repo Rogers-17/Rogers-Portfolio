@@ -1,8 +1,8 @@
 import { after } from "next/server"
 import { requireAdminApi } from "@/lib/admin/auth"
 import { dbError, fail, ok, parseJson } from "@/lib/admin/http"
-import { DOCUMENTS_BUCKET, cleanupInbox, documentUsage, getDocument, listDocuments } from "@/lib/documents/queries"
-import { MAX_DOCUMENT_BYTES, cleanFileName, documentCreateSchema, filterDocuments, formatFromName, parseDocumentFilter, titleFromFileName, todayIso } from "@/lib/documents/schema"
+import { DOCUMENTS_BUCKET, cleanupInbox, documentUsage, getDocument, listDocuments, readDocumentSample } from "@/lib/documents/queries"
+import { MAX_DOCUMENT_BYTES, MAX_DOCUMENT_MB, cleanFileName, documentCreateSchema, filterDocuments, formatFromName, parseDocumentFilter, titleFromFileName, todayIso } from "@/lib/documents/schema"
 import { sniffDocument } from "@/lib/documents/sniff"
 
 // GET /api/admin/documents?q=&group=&favorites=1&expiring=1&sort=newest
@@ -20,6 +20,7 @@ export async function GET (request: Request) {
 }
 
 // POST: verify an uploaded inbox file (size + real contents), move it into files/ and save it.
+// A failed check deletes the file; a failed read leaves it for a retry (or the inbox clean-up).
 export async function POST (request: Request) {
     const auth = await requireAdminApi(request)
     if (!auth.ok) return auth.response
@@ -44,13 +45,16 @@ export async function POST (request: Request) {
     const declared = path.split(".").pop()
     if (!fileName || !format || format !== declared) return reject(400, "invalid_type", "The file name doesn't match the uploaded file.")
 
-    const { data: blob, error: downloadError } = await storage.download(path)
-    if (downloadError || !blob) return fail(404, "not_found", "Upload not found. Please try again.")
-    if (blob.size > MAX_DOCUMENT_BYTES) return reject(413, "too_large", "File is too large (max 10 MB).")
-    if (blob.size === 0) return reject(400, "empty_file", "The file is empty.")
+    // Size from the stored object; contents from its first and last 64 KB (never a full download).
+    const { data: info, error: infoError } = await storage.info(path)
+    if (infoError || !info) return fail(404, "not_found", "Upload not found. Please try again.")
+    const size = info.size ?? 0
+    if (size > MAX_DOCUMENT_BYTES) return reject(413, "too_large", `File is too large (max ${MAX_DOCUMENT_MB} MB).`)
+    if (size <= 0) return reject(400, "empty_file", "The file is empty.")
 
-    const bytes = new Uint8Array(await blob.arrayBuffer())
-    if (!sniffDocument(bytes, format)) return reject(400, "invalid_type", `This file isn't a valid ${format.toUpperCase()}. Check the file and try again.`)
+    const sample = await readDocumentSample(supabase, path, size)
+    if (!sample) return fail(502, "upload_failed", "Couldn't check the file. Please try again.")
+    if (!sniffDocument(sample, format)) return reject(400, "invalid_type", `This file isn't a valid ${format.toUpperCase()}. Check the file and try again.`)
 
     const finalPath = path.replace(/^inbox\//, "files/")
     const { error: moveError } = await storage.move(path, finalPath)
@@ -67,7 +71,7 @@ export async function POST (request: Request) {
             file_path: finalPath,
             file_name: fileName,
             format,
-            size_bytes: blob.size,
+            size_bytes: size,
         })
         .select("id")
         .single()
