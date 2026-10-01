@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { FiArrowDown, FiArrowUp, FiEdit2, FiExternalLink, FiTrash2 } from "react-icons/fi"
+import { useDialog } from "@/components/admin/Dialog"
 import { adminFetch } from "@/lib/admin/client"
 import { Switch, iconButtonClass } from "@/components/admin/Field"
 import { useToast } from "@/components/admin/Toast"
@@ -42,6 +43,7 @@ type Props = {
 export default function ContentList ({ items: initialItems, endpoint, itemLabel, allowDelete = false, emptyTitle, emptyHint, newHref, notice }: Props) {
     const router = useRouter()
     const { notify } = useToast()
+    const { confirm } = useDialog()
     const [items, setItems] = React.useState(initialItems)
     const [busy, setBusy] = React.useState(false)
 
@@ -77,7 +79,7 @@ export default function ContentList ({ items: initialItems, endpoint, itemLabel,
     }
 
     async function remove (item: ListItem) {
-        if (!window.confirm(`Delete "${item.title}"? This can't be undone.`)) return
+        if (!(await confirm({ title: `Delete “${item.title}”?`, message: "This can't be undone.", confirmLabel: "Delete", tone: "danger" }))) return
         setBusy(true)
         const result = await adminFetch(`${endpoint}/${item.id}/delete`, { method: "POST" })
         setBusy(false)

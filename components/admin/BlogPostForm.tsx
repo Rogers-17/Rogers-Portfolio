@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { FiLock, FiUnlock } from "react-icons/fi"
+import { useDialog } from "@/components/admin/Dialog"
 import BlogEditor from "@/components/admin/BlogEditor"
 import ImageUpload from "@/components/admin/ImageUpload"
 import SaveBar from "@/components/admin/SaveBar"
@@ -77,6 +78,7 @@ const snapshotOf = (state: FormState) => JSON.stringify({ ...toPayload(state), p
 export default function BlogPostForm ({ post }: { post?: AdminPost }) {
     const router = useRouter()
     const { notify } = useToast()
+    const { confirm } = useDialog()
     const isNew = !post
 
     const [state, setState] = React.useState(() => toFormState(post))
@@ -118,7 +120,7 @@ export default function BlogPostForm ({ post }: { post?: AdminPost }) {
     }
 
     async function handleDelete () {
-        if (!post || !window.confirm(`Delete "${post.title}"? This can't be undone.`)) return
+        if (!post || !(await confirm({ title: `Delete “${post.title}”?`, message: "The post is removed from the blog. This can't be undone.", confirmLabel: "Delete", tone: "danger" }))) return
         setDeleting(true)
         const result = await adminFetch(`/api/admin/blog-posts/${post.id}/delete`, { method: "POST" })
         setDeleting(false)

@@ -4,6 +4,7 @@ import * as React from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { FiEdit2, FiPlus, FiTrash2 } from "react-icons/fi"
+import { useDialog } from "@/components/admin/Dialog"
 import { adminFetch, issuesToRecord } from "@/lib/admin/client"
 import type { AdminTechnology } from "@/lib/admin/queries"
 import { technologyInputSchema } from "@/lib/admin/schemas"
@@ -19,6 +20,7 @@ const emptyDraft: Draft = { id: null, name: "", slug: "", slugTouched: false, ic
 export default function TechnologiesManager ({ technologies }: { technologies: AdminTechnology[] }) {
     const router = useRouter()
     const { notify } = useToast()
+    const { confirm } = useDialog()
     const [draft, setDraft] = React.useState<Draft | null>(null)
     const [errors, setErrors] = React.useState<Record<string, string>>({})
     const [saving, setSaving] = React.useState(false)
@@ -56,7 +58,7 @@ export default function TechnologiesManager ({ technologies }: { technologies: A
     }
 
     async function remove (tech: AdminTechnology) {
-        if (!window.confirm(`Delete "${tech.name}"?`)) return
+        if (!(await confirm({ title: `Delete “${tech.name}”?`, message: "It's removed from every project that uses it.", confirmLabel: "Delete", tone: "danger" }))) return
         setDeletingId(tech.id)
         const result = await adminFetch(`/api/admin/technologies/${tech.id}/delete`, { method: "POST" })
         setDeletingId(null)

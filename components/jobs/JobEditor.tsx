@@ -3,6 +3,7 @@
 import * as React from "react"
 import { useRouter } from "next/navigation"
 import { LuExternalLink, LuFilePlus2, LuLoaderCircle, LuMail, LuStar, LuTrash2, LuX } from "react-icons/lu"
+import { useDialog } from "@/components/admin/Dialog"
 import { inputClass } from "@/components/admin/Field"
 import { useToast } from "@/components/admin/Toast"
 import { RField, labelClass } from "@/components/resume/controls"
@@ -58,6 +59,7 @@ type Props = {
 export default function JobEditor ({ job, defaultStatus, resumes, letters, onClose, onSaved }: Props) {
     const router = useRouter()
     const { notify } = useToast()
+    const { confirm } = useDialog()
     const [state, setState] = React.useState(() => toState(job, defaultStatus))
     const [errors, setErrors] = React.useState<Record<string, string>>({})
     const [busy, setBusy] = React.useState<string | null>(null)
@@ -101,7 +103,7 @@ export default function JobEditor ({ job, defaultStatus, resumes, letters, onClo
     }
 
     async function remove () {
-        if (!job || !window.confirm(`Delete the application at ${job.company}?`)) return
+        if (!job || !(await confirm({ title: `Delete the ${job.company} application?`, message: "The application and its notes are removed. Linked resumes and cover letters are kept.", confirmLabel: "Delete", tone: "danger" }))) return
         setBusy("delete")
         const result = await adminFetch(`/api/admin/jobs/${job.id}/delete`, { method: "POST" })
         setBusy(null)

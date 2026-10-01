@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { LuChevronDown, LuCopy, LuEye, LuEyeOff, LuPlus, LuTrash2 } from "react-icons/lu"
+import { useDialog } from "@/components/admin/Dialog"
 import { inputClass } from "@/components/admin/Field"
 import BulletsEditor from "@/components/resume/BulletsEditor"
 import { PanelHeading, RCheckbox, RField, RTextArea, ghostButton, labelClass } from "@/components/resume/controls"
@@ -20,6 +21,7 @@ type AnyItem = SectionItem & Record<string, unknown>
 
 export default function SectionEditor ({ section, onChange, onRemove }: Props) {
     const items = section.items as AnyItem[]
+    const { confirm } = useDialog()
     const [openId, setOpenId] = React.useState<string | null>(items[0]?.id ?? null)
     const setItems = (next: AnyItem[]) => onChange({ ...section, items: next } as ResumeSection)
     const updateItem = (id: string, patch: Record<string, unknown>) => setItems(items.map(item => (item.id === id ? { ...item, ...patch } : item)))
@@ -46,7 +48,7 @@ export default function SectionEditor ({ section, onChange, onRemove }: Props) {
                         </button>
                         <button
                             type="button"
-                            onClick={() => { if (window.confirm(`Remove the "${section.title}" section and its content?`)) onRemove() }}
+                            onClick={async () => { if (await confirm({ title: `Remove “${section.title || "this section"}”?`, message: "The section and everything in it are removed from this resume. Earlier versions stay in History.", confirmLabel: "Remove section", tone: "danger" })) onRemove() }}
                             aria-label="Remove section"
                             className={`${ghostButton} hover:border-rose-500 hover:text-rose-300`}
                         >
@@ -96,7 +98,7 @@ export default function SectionEditor ({ section, onChange, onRemove }: Props) {
                                                 <button type="button" onClick={() => setItems([...items.slice(0, items.indexOf(item) + 1), { ...item, id: newId() }, ...items.slice(items.indexOf(item) + 1)])} aria-label="Duplicate entry" title="Duplicate" className="inline-flex size-9 items-center justify-center rounded-md text-dim hover:bg-white/6 hover:text-white">
                                                     <LuCopy aria-hidden="true" />
                                                 </button>
-                                                <button type="button" onClick={() => { if (window.confirm("Delete this entry?")) setItems(items.filter(entry => entry.id !== item.id)) }} aria-label="Delete entry" title="Delete" className="inline-flex size-9 items-center justify-center rounded-md text-dim hover:bg-rose-500/10 hover:text-rose-300">
+                                                <button type="button" onClick={async () => { if (await confirm({ title: "Delete this entry?", message: `“${itemLabel(section.type, item)}” is removed from this section.`, confirmLabel: "Delete", tone: "danger" })) setItems(items.filter(entry => entry.id !== item.id)) }} aria-label="Delete entry" title="Delete" className="inline-flex size-9 items-center justify-center rounded-md text-dim hover:bg-rose-500/10 hover:text-rose-300">
                                                     <LuTrash2 aria-hidden="true" />
                                                 </button>
                                             </div>

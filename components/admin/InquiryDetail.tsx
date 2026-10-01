@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { FiMail, FiMessageCircle, FiPhone } from "react-icons/fi"
+import { useDialog } from "@/components/admin/Dialog"
 import SaveBar from "@/components/admin/SaveBar"
 import { Card, SelectField, TextAreaField, secondaryButtonClass } from "@/components/admin/Field"
 import { useSaveForm } from "@/components/admin/useSaveForm"
@@ -20,6 +21,7 @@ const toPayload = (state: FormState) => state
 export default function InquiryDetail ({ inquiry }: { inquiry: AdminProjectRequest }) {
     const router = useRouter()
     const { notify } = useToast()
+    const { confirm } = useDialog()
     const [deleting, setDeleting] = React.useState(false)
     const form = useSaveForm<FormState>({
         initial: { status: inquiry.status, notes: inquiry.notes ?? "" },
@@ -30,7 +32,7 @@ export default function InquiryDetail ({ inquiry }: { inquiry: AdminProjectReque
     })
 
     async function handleDelete () {
-        if (!window.confirm(`Delete the inquiry from ${inquiry.name}? This can't be undone.`)) return
+        if (!(await confirm({ title: `Delete ${inquiry.name}'s inquiry?`, message: "Their request and your notes are deleted. This can't be undone.", confirmLabel: "Delete", tone: "danger" }))) return
         setDeleting(true)
         const result = await adminFetch(`/api/admin/project-requests/${inquiry.id}/delete`, { method: "POST" })
         setDeleting(false)

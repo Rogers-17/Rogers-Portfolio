@@ -6,6 +6,7 @@ import StarterKit from "@tiptap/starter-kit"
 import Image from "@tiptap/extension-image"
 import { Placeholder } from "@tiptap/extensions"
 import type { IconType } from "react-icons"
+import { useDialog } from "@/components/admin/Dialog"
 import {
     LuBold, LuCode, LuHeading2, LuHeading3, LuImagePlus, LuItalic, LuLink, LuList, LuListOrdered,
     LuMinus, LuPilcrow, LuQuote, LuRedo2, LuSquareCode, LuStrikethrough, LuUnderline, LuUndo2, LuUnlink,
@@ -79,6 +80,7 @@ const Divider = () => <span className="mx-1 h-6 w-px shrink-0 bg-white/10" aria-
 
 function Toolbar ({ editor, onError }: { editor: Editor, onError: (message: string) => void }) {
     const fileRef = React.useRef<HTMLInputElement>(null)
+    const { prompt } = useDialog()
     const [uploading, setUploading] = React.useState(false)
 
     const state = useEditorState({
@@ -104,17 +106,22 @@ function Toolbar ({ editor, onError }: { editor: Editor, onError: (message: stri
 
     const chain = () => editor.chain().focus()
 
-    function setLink () {
+    async function setLink () {
         const previous = editor.getAttributes("link").href as string | undefined
-        const input = window.prompt("Link URL (https://…, http://… or mailto:…)", previous ?? "https://")
-        if (input === null) return
-        const href = input.trim()
+        const href = await prompt({
+            title: previous ? "Edit link" : "Add link",
+            message: "Leave it empty to remove the link.",
+            label: "URL",
+            defaultValue: previous ?? "https://",
+            placeholder: "https://…, http://… or mailto:…",
+            maxLength: 2000,
+            required: false,
+            confirmLabel: previous ? "Update link" : "Add link",
+            validate: value => (!value || isAllowedHref(value) ? null : "Links must start with https://, http:// or mailto:."),
+        })
+        if (href === null) return
         if (!href) {
             chain().extendMarkRange("link").unsetLink().run()
-            return
-        }
-        if (!isAllowedHref(href)) {
-            onError("Links must start with https://, http:// or mailto:.")
             return
         }
         chain().extendMarkRange("link").setLink({ href }).run()
@@ -129,7 +136,7 @@ function Toolbar ({ editor, onError }: { editor: Editor, onError: (message: stri
             onError(result.error.message)
             return
         }
-        const alt = window.prompt("Describe the image (alt text, required for accessibility):", "")?.trim()
+        const alt = await prompt({ title: "Describe the image", message: "Alt text is read aloud to people using screen readers and helps search engines.", label: "Alt text", placeholder: "e.g. Rogers presenting at a design meetup", maxLength: 200, confirmLabel: "Insert image" })
         if (!alt) {
             onError("Image not added: a description is required.")
             return

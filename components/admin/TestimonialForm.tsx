@@ -9,6 +9,7 @@ import type { AdminTestimonial } from "@/lib/admin/content-queries"
 import ImageUpload from "@/components/admin/ImageUpload"
 import SaveBar from "@/components/admin/SaveBar"
 import { Card, SelectField, Switch, TextAreaField, TextField } from "@/components/admin/Field"
+import { useDialog } from "@/components/admin/Dialog"
 import { useScrollToFirstError, useUnsavedGuard, zodErrorsToRecord } from "@/components/admin/form-hooks"
 import { useToast } from "@/components/admin/Toast"
 
@@ -46,6 +47,7 @@ const toPayload = (state: FormState) => ({
 export default function TestimonialForm ({ testimonial }: { testimonial?: AdminTestimonial }) {
     const router = useRouter()
     const { notify } = useToast()
+    const { confirm } = useDialog()
     const isNew = !testimonial
 
     const [state, setState] = React.useState(() => toFormState(testimonial))
@@ -89,7 +91,7 @@ export default function TestimonialForm ({ testimonial }: { testimonial?: AdminT
     }
 
     async function handleDelete () {
-        if (!testimonial || !window.confirm(`Delete the testimonial from "${testimonial.author_name}"? This can't be undone.`)) return
+        if (!testimonial || !(await confirm({ title: `Delete ${testimonial.author_name}'s testimonial?`, message: "It's removed from the homepage. This can't be undone.", confirmLabel: "Delete", tone: "danger" }))) return
         setDeleting(true)
         const result = await adminFetch(`/api/admin/testimonials/${testimonial.id}/delete`, { method: "POST" })
         setDeleting(false)

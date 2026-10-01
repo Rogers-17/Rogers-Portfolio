@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { LuLoaderCircle, LuSave, LuSparkles, LuTrash2 } from "react-icons/lu"
+import { useDialog } from "@/components/admin/Dialog"
 import { inputClass } from "@/components/admin/Field"
 import { useUnsavedGuard } from "@/components/admin/form-hooks"
 import { useToast } from "@/components/admin/Toast"
@@ -39,6 +40,7 @@ function longDate (iso: string) {
 export default function CoverLetterEditor ({ letter, resumes }: { letter: CoverLetterRecord, resumes: LinkableResume[] }) {
     const router = useRouter()
     const { notify } = useToast()
+    const { confirm } = useDialog()
     const [state, setState] = React.useState(() => toState(letter))
     const [saved, setSaved] = React.useState(() => JSON.stringify(toState(letter)))
     const [saving, setSaving] = React.useState(false)
@@ -70,7 +72,7 @@ export default function CoverLetterEditor ({ letter, resumes }: { letter: CoverL
     }
 
     async function remove () {
-        if (!window.confirm("Delete this cover letter?")) return
+        if (!(await confirm({ title: `Delete “${state.title || "this cover letter"}”?`, message: "The letter is deleted permanently.", confirmLabel: "Delete", tone: "danger" }))) return
         const result = await adminFetch(`/api/admin/cover-letters/${letter.id}/delete`, { method: "POST" })
         if (!result.ok) {
             notify(result.error.message, "error")
@@ -83,7 +85,7 @@ export default function CoverLetterEditor ({ letter, resumes }: { letter: CoverL
 
     async function generate () {
         if (!resume) return
-        if (state.body.trim() && !window.confirm("Replace the current letter with a new AI draft?")) return
+        if (state.body.trim() && !(await confirm({ title: "Replace your letter?", message: "A new AI draft replaces the current text. Save first if you want to keep a copy.", confirmLabel: "Replace with new draft", tone: "warning" }))) return
         setGenerating(true)
         const result = await adminFetch<{ body: string }>("/api/admin/ai/cover-letter", {
             json: { resume: resumeToText(resume.data), company: state.company, jobTitle: state.job_title || resume.target_role || "", recipient: state.recipient, jobDescription, tone, notes },

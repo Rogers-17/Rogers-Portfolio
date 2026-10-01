@@ -11,6 +11,7 @@ import ChipsInput from "@/components/admin/ChipsInput"
 import ImageUpload from "@/components/admin/ImageUpload"
 import SaveBar from "@/components/admin/SaveBar"
 import { Card, SelectField, Switch, TextAreaField, TextField } from "@/components/admin/Field"
+import { useDialog } from "@/components/admin/Dialog"
 import { useScrollToFirstError, useUnsavedGuard, zodErrorsToRecord } from "@/components/admin/form-hooks"
 import { useToast } from "@/components/admin/Toast"
 
@@ -80,6 +81,7 @@ function MonthSelect ({ label, value, onChange, error }: { label: string, value:
 export default function ExperienceForm ({ experience }: { experience?: AdminExperience }) {
     const router = useRouter()
     const { notify } = useToast()
+    const { confirm } = useDialog()
     const isNew = !experience
 
     const [state, setState] = React.useState(() => toFormState(experience))
@@ -138,7 +140,7 @@ export default function ExperienceForm ({ experience }: { experience?: AdminExpe
     }
 
     async function handleDelete () {
-        if (!experience || !window.confirm(`Delete "${experience.role} at ${experience.company}"? This can't be undone.`)) return
+        if (!experience || !(await confirm({ title: `Delete “${experience.role} at ${experience.company}”?`, message: "It's removed from the homepage. This can't be undone.", confirmLabel: "Delete", tone: "danger" }))) return
         setDeleting(true)
         const result = await adminFetch(`/api/admin/experiences/${experience.id}/delete`, { method: "POST" })
         setDeleting(false)

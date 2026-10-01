@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import type { IconType } from "react-icons"
 import { FiBriefcase, FiClipboard, FiEdit3, FiExternalLink, FiFileText, FiGrid, FiImage, FiInbox, FiLayers, FiLogOut, FiMail, FiMenu, FiMessageSquare, FiTarget, FiUser, FiX } from "react-icons/fi"
 import { adminFetch } from "@/lib/admin/client"
+import { DialogProvider } from "@/components/admin/Dialog"
 import { ToastProvider } from "@/components/admin/Toast"
 
 type NavItem = { href: string, label: string, icon: IconType }
@@ -170,6 +171,7 @@ export default function AdminShell ({ email, newInquiries = 0, dueFollowUps = 0,
 
     return (
         <ToastProvider>
+        <DialogProvider>
             <div className="flex min-h-screen w-full">
                 {/* ≥ lg: full sidebar */}
                 <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col gap-6 overflow-y-auto border-r border-white/6 bg-card px-3 py-5 lg:flex">
@@ -245,6 +247,7 @@ export default function AdminShell ({ email, newInquiries = 0, dueFollowUps = 0,
                     <div className={`mx-auto ${WIDE_ROUTES.test(pathname) ? "max-w-none" : "max-w-6xl"}`}>{children}</div>
                 </main>
             </div>
+        </DialogProvider>
         </ToastProvider>
     )
 }

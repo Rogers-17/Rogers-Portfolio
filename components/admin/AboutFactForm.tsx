@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { FACT_ICON_COMPONENTS, FACT_ICON_LABELS } from "@/components/about/fact-icons"
 import SaveBar from "@/components/admin/SaveBar"
 import { Card, SelectField, Switch, TextAreaField, TextField } from "@/components/admin/Field"
+import { useDialog } from "@/components/admin/Dialog"
 import { useScrollToFirstError, useUnsavedGuard, zodErrorsToRecord } from "@/components/admin/form-hooks"
 import { useToast } from "@/components/admin/Toast"
 import { adminFetch, issuesToRecord } from "@/lib/admin/client"
@@ -25,6 +26,7 @@ const toFormState = (fact?: AdminAboutFact): FormState => ({
 export default function AboutFactForm ({ fact }: { fact?: AdminAboutFact }) {
     const router = useRouter()
     const { notify } = useToast()
+    const { confirm } = useDialog()
     const isNew = !fact
 
     const [state, setState] = React.useState(() => toFormState(fact))
@@ -63,7 +65,7 @@ export default function AboutFactForm ({ fact }: { fact?: AdminAboutFact }) {
     }
 
     async function handleDelete () {
-        if (!fact || !window.confirm(`Delete "${fact.title}"? This can't be undone.`)) return
+        if (!fact || !(await confirm({ title: `Delete “${fact.title}”?`, message: "The row is removed from the About page accordion.", confirmLabel: "Delete", tone: "danger" }))) return
         setDeleting(true)
         const result = await adminFetch(`/api/admin/about-facts/${fact.id}/delete`, { method: "POST" })
         setDeleting(false)

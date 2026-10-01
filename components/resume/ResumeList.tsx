@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { LuArchive, LuArchiveRestore, LuCopy, LuPencil, LuPlus, LuSettings2, LuTrash2 } from "react-icons/lu"
+import { useDialog } from "@/components/admin/Dialog"
 import { primaryButtonClass } from "@/components/admin/Field"
 import { useToast } from "@/components/admin/Toast"
 import { Thumb } from "@/components/resume/DesignForm"
@@ -18,6 +19,7 @@ const actionClass = "inline-flex size-10 items-center justify-center rounded-lg 
 export default function ResumeList ({ resumes, archived, defaultTemplate }: { resumes: Card[], archived: boolean, defaultTemplate: TemplateKey }) {
     const router = useRouter()
     const { notify } = useToast()
+    const { confirm, prompt } = useDialog()
     const [creating, setCreating] = React.useState(false)
     const [busy, setBusy] = React.useState<string | null>(null)
 
@@ -35,7 +37,7 @@ export default function ResumeList ({ resumes, archived, defaultTemplate }: { re
     }
 
     async function rename (resume: Card) {
-        const title = window.prompt("Resume name", resume.title)?.trim()
+        const title = await prompt({ title: "Rename resume", label: "Resume name", defaultValue: resume.title, maxLength: 120, confirmLabel: "Rename" })
         if (!title || title === resume.title) return
         await run(resume.id, `/api/admin/resumes/${resume.id}/rename`, { title, target_role: resume.target_role }, "Renamed.")
     }
@@ -102,7 +104,7 @@ export default function ResumeList ({ resumes, archived, defaultTemplate }: { re
                                     </button>
                                     <button
                                         type="button"
-                                        onClick={() => { if (window.confirm(`Delete "${resume.title}" permanently?`)) void run(resume.id, `/api/admin/resumes/${resume.id}/delete`, undefined, "Resume deleted.") }}
+                                        onClick={async () => { if (await confirm({ title: `Delete “${resume.title}”?`, message: "The resume, its version history and its share links are deleted permanently. Applications that used it are kept.", confirmLabel: "Delete resume", tone: "danger" })) void run(resume.id, `/api/admin/resumes/${resume.id}/delete`, undefined, "Resume deleted.") }}
                                         aria-label={`Delete ${resume.title}`}
                                         title="Delete"
                                         className={`${actionClass} ml-auto hover:bg-rose-500/10 hover:text-rose-300`}

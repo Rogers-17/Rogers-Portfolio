@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { FiArrowDown, FiArrowUp, FiExternalLink, FiPlus, FiTrash2, FiX } from "react-icons/fi"
+import { useDialog } from "@/components/admin/Dialog"
 import { adminFetch, issuesToRecord } from "@/lib/admin/client"
 import { LIMITS, projectInputSchema, type ProjectInput } from "@/lib/admin/schemas"
 import type { AdminProjectDetail, AdminTechnology } from "@/lib/admin/queries"
@@ -150,6 +151,7 @@ type Props = { project?: AdminProjectDetail & { id: string }, technologies: Admi
 export default function ProjectForm ({ project, technologies }: Props) {
     const router = useRouter()
     const { notify } = useToast()
+    const { confirm } = useDialog()
     const isNew = !project
 
     const [state, setState] = React.useState<FormState>(() => toFormState(project))
@@ -219,7 +221,7 @@ export default function ProjectForm ({ project, technologies }: Props) {
 
     async function handleDelete () {
         if (!project) return
-        if (!window.confirm(`Delete "${project.name}"? Its images will be deleted too. This can't be undone.`)) return
+        if (!(await confirm({ title: `Delete “${project.name}”?`, message: "The project and its images are deleted. This can't be undone.", confirmLabel: "Delete", tone: "danger" }))) return
 
         setDeleting(true)
         const result = await adminFetch(`/api/admin/projects/${project.id}/delete`, { method: "POST" })

@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { LuCheck, LuCopy, LuDownload, LuExternalLink, LuLink, LuLoaderCircle, LuShieldOff, LuTrash2 } from "react-icons/lu"
+import { useDialog } from "@/components/admin/Dialog"
 import { inputClass } from "@/components/admin/Field"
 import { useToast } from "@/components/admin/Toast"
 import { PanelHeading, RField, labelClass } from "@/components/resume/controls"
@@ -44,6 +45,7 @@ function downloadData (href: string, filename: string) {
 // QR code) can only be shown right after creating the link, since only its hash is stored.
 export default function SharePanel ({ resumeId, photoUrl, showPhoto, hasPhoto, dirty, save }: Props) {
     const { notify } = useToast()
+    const { confirm } = useDialog()
     const now = useNow()
     const [shares, setShares] = React.useState<ShareItem[] | null>(null)
     const [label, setLabel] = React.useState("")
@@ -66,7 +68,7 @@ export default function SharePanel ({ resumeId, photoUrl, showPhoto, hasPhoto, d
 
     async function create () {
         if (dirty) {
-            if (!window.confirm("Save your changes first? The link shows the resume as saved.")) return
+            if (!(await confirm({ title: "Save changes first?", message: "A share link shows the resume as it's saved. Your unsaved changes will be saved now, then the link is created.", confirmLabel: "Save & create link" }))) return
             if (!(await save())) return
         }
         setCreating(true)
@@ -105,7 +107,7 @@ export default function SharePanel ({ resumeId, photoUrl, showPhoto, hasPhoto, d
     }
 
     async function revoke (share: ShareItem) {
-        if (!window.confirm(`Turn off the link${share.label ? ` “${share.label}”` : ""}? Anyone who has it will see “link unavailable”.`)) return
+        if (!(await confirm({ title: `Revoke ${share.label ? `“${share.label}”` : "this link"}?`, message: "Anyone who has the link (or its QR code) will see “link unavailable”. Its view count is kept.", confirmLabel: "Revoke link", tone: "warning" }))) return
         const result = await adminFetch(`/api/admin/resumes/${resumeId}/shares/${share.id}/revoke`, { method: "POST" })
         if (!result.ok) return notify(result.error.message, "error")
         notify("Link turned off.")
@@ -114,7 +116,7 @@ export default function SharePanel ({ resumeId, photoUrl, showPhoto, hasPhoto, d
 
     async function remove (share: ShareItem) {
         const active = expiryLabel(share, now) !== "Revoked" && expiryLabel(share, now) !== "Expired"
-        if (!window.confirm(`Delete the link${share.label ? ` “${share.label}”` : ""}?${active ? " It stops working immediately." : ""} Its view history is removed too.`)) return
+        if (!(await confirm({ title: `Delete ${share.label ? `“${share.label}”` : "this link"}?`, message: `${active ? "The link stops working immediately. " : ""}Its view history is removed too.`, confirmLabel: "Delete", tone: "danger" }))) return
         const result = await adminFetch(`/api/admin/resumes/${resumeId}/shares/${share.id}/delete`, { method: "POST" })
         if (!result.ok) return notify(result.error.message, "error")
         setShares(list => list?.filter(entry => entry.id !== share.id) ?? null)

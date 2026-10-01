@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { LuBookmarkPlus, LuEye, LuHistory, LuLoaderCircle, LuPencil, LuRotateCcw, LuTrash2, LuX } from "react-icons/lu"
+import { useDialog } from "@/components/admin/Dialog"
 import { useToast } from "@/components/admin/Toast"
 import { PanelHeading, ghostButton } from "@/components/resume/controls"
 import { PdfViewer } from "@/components/resume/PdfPreview"
@@ -27,6 +28,7 @@ const iconButton = "inline-flex size-9 items-center justify-center rounded-lg te
 
 export default function HistoryPanel ({ resumeId, photoUrl, current, onRestore, refreshKey }: Props) {
     const { notify } = useToast()
+    const { confirm, prompt } = useDialog()
     const now = useNow()
     const [versions, setVersions] = React.useState<VersionItem[] | null>(null)
     const [busy, setBusy] = React.useState<string | null>(null)
@@ -46,7 +48,7 @@ export default function HistoryPanel ({ resumeId, photoUrl, current, onRestore, 
     const refresh = () => setReload(value => value + 1)
 
     async function saveNamed () {
-        const name = window.prompt("Name this version (e.g. “Sent to Acme”):")?.trim()
+        const name = await prompt({ title: "Save a named version", message: "Named versions are kept until you delete them.", label: "Version name", placeholder: "e.g. Sent to Acme", maxLength: 80, confirmLabel: "Save version" })
         if (!name) return
         setBusy("new")
         const result = await adminFetch(`/api/admin/resumes/${resumeId}/versions`, { json: { name: name.slice(0, 80), state: current() } })
@@ -66,7 +68,7 @@ export default function HistoryPanel ({ resumeId, photoUrl, current, onRestore, 
     }
 
     async function restore (item: VersionItem) {
-        if (!window.confirm(`Restore “${item.name ?? "Auto-save"}” from ${relativeTime(item.created_at, now)}? Your current version is kept in history first.`)) return
+        if (!(await confirm({ title: `Restore “${item.name ?? "Auto-save"}”?`, message: `The version from ${relativeTime(item.created_at, now)} loads into the editor as unsaved changes. Your current version is saved to History first, so you can undo this.`, confirmLabel: "Restore" }))) return
         setBusy(item.id)
         // Keep the current editor state so the restore can be undone.
         const backup = await adminFetch(`/api/admin/resumes/${resumeId}/versions`, { json: { name: `Before restoring (${new Date().toLocaleString("en-GB", { dateStyle: "short", timeStyle: "short" })})`.slice(0, 80), state: current() } })
@@ -80,7 +82,7 @@ export default function HistoryPanel ({ resumeId, photoUrl, current, onRestore, 
     }
 
     async function rename (item: VersionItem) {
-        const name = window.prompt("Version name:", item.name ?? "")?.trim()
+        const name = await prompt({ title: item.name ? "Rename version" : "Name this version", message: item.name ? undefined : "Named versions are kept until you delete them.", label: "Version name", defaultValue: item.name ?? "", maxLength: 80, confirmLabel: item.name ? "Rename" : "Save name" })
         if (!name || name === item.name) return
         const result = await adminFetch(`/api/admin/resumes/${resumeId}/versions/${item.id}`, { json: { name: name.slice(0, 80) } })
         if (!result.ok) return notify(result.error.message, "error")
@@ -88,7 +90,7 @@ export default function HistoryPanel ({ resumeId, photoUrl, current, onRestore, 
     }
 
     async function remove (item: VersionItem) {
-        if (!window.confirm("Delete this version?")) return
+        if (!(await confirm({ title: "Delete this version?", message: `“${item.name ?? "Auto-save"}” from ${relativeTime(item.created_at, now)} is removed from History.`, confirmLabel: "Delete", tone: "danger" }))) return
         const result = await adminFetch(`/api/admin/resumes/${resumeId}/versions/${item.id}/delete`, { method: "POST" })
         if (!result.ok) return notify(result.error.message, "error")
         setVersions(list => list?.filter(entry => entry.id !== item.id) ?? null)

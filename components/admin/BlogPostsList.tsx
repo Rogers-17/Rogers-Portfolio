@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { FiEdit2, FiExternalLink, FiTrash2 } from "react-icons/fi"
+import { useDialog } from "@/components/admin/Dialog"
 import { iconButtonClass } from "@/components/admin/Field"
 import { useToast } from "@/components/admin/Toast"
 import { adminFetch } from "@/lib/admin/client"
@@ -21,6 +22,7 @@ const STATUS_STYLES: Record<Status, string> = {
 export default function BlogPostsList ({ posts: initialPosts, now }: { posts: AdminPostListItem[], now: string }) {
     const router = useRouter()
     const { notify } = useToast()
+    const { confirm } = useDialog()
     const [posts, setPosts] = React.useState(initialPosts)
     const [busy, setBusy] = React.useState(false)
 
@@ -28,7 +30,7 @@ export default function BlogPostsList ({ posts: initialPosts, now }: { posts: Ad
         post.status === "draft" ? "Draft" : post.published_at > now ? "Scheduled" : "Published"
 
     async function remove (post: AdminPostListItem) {
-        if (!window.confirm(`Delete "${post.title}"? This can't be undone.`)) return
+        if (!(await confirm({ title: `Delete “${post.title}”?`, message: "The post is removed from the blog. This can't be undone.", confirmLabel: "Delete", tone: "danger" }))) return
         setBusy(true)
         const result = await adminFetch(`/api/admin/blog-posts/${post.id}/delete`, { method: "POST" })
         setBusy(false)

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import ImageUpload from "@/components/admin/ImageUpload"
 import SaveBar from "@/components/admin/SaveBar"
 import { Card, Switch, TextField } from "@/components/admin/Field"
+import { useDialog } from "@/components/admin/Dialog"
 import { useSaveForm } from "@/components/admin/useSaveForm"
 import { useToast } from "@/components/admin/Toast"
 import { adminFetch } from "@/lib/admin/client"
@@ -31,6 +32,7 @@ const toPayload = (state: FormState) => {
 export default function GalleryPhotoForm ({ photo }: { photo: AdminGalleryPhoto }) {
     const router = useRouter()
     const { notify } = useToast()
+    const { confirm } = useDialog()
     const [deleting, setDeleting] = React.useState(false)
     const form = useSaveForm<FormState>({
         initial: {
@@ -50,7 +52,7 @@ export default function GalleryPhotoForm ({ photo }: { photo: AdminGalleryPhoto 
     const { state, set, errors } = form
 
     async function handleDelete () {
-        if (!window.confirm("Delete this photo? This can't be undone.")) return
+        if (!(await confirm({ title: "Delete this photo?", message: "It's removed from the gallery. This can't be undone.", confirmLabel: "Delete", tone: "danger" }))) return
         setDeleting(true)
         const result = await adminFetch(`/api/admin/gallery-photos/${photo.id}/delete`, { method: "POST" })
         setDeleting(false)
