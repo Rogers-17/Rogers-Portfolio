@@ -291,7 +291,7 @@ export default function DocumentArchive ({ initialDocuments, initialFilter, toda
                         <button type="button" aria-pressed={!filter.group && !filter.favorites && !filter.expiring} onClick={() => setFilter(current => ({ ...current, group: null, favorites: false, expiring: false }))} className={chip(!filter.group && !filter.favorites && !filter.expiring)}>
                             All {count(documents.length)}
                         </button>
-                        {DOCUMENT_GROUPS.filter(group => counts.get(group) || filter.group === group).map(group => (
+                        {DOCUMENT_GROUPS.map(group => (
                             <button key={group} type="button" aria-pressed={filter.group === group} onClick={() => setFilterValue("group", filter.group === group ? null : group)} title={DOCUMENT_GROUP_INFO[group].hint} className={chip(filter.group === group)}>
                                 {DOCUMENT_GROUP_INFO[group].label} {count(counts.get(group) ?? 0)}
                             </button>
