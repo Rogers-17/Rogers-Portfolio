@@ -292,6 +292,7 @@ export default function ProjectForm ({ project, technologies }: Props) {
                 <div className="grid gap-5 lg:grid-cols-2">
                     <ImageUpload
                         bucket="project-images"
+                        resize={2400}
                         folder={uploadFolder}
                         path={state.cover_image_path}
                         url={state.cover_image_url}
@@ -346,6 +347,7 @@ export default function ProjectForm ({ project, technologies }: Props) {
                             </div>
                             <ImageUpload
                                 bucket="project-images"
+                                resize={2400}
                                 folder={uploadFolder}
                                 path={feature.image_path}
                                 url={feature.image_url}
@@ -444,6 +446,7 @@ export default function ProjectForm ({ project, technologies }: Props) {
                         <div key={image.key} className="flex flex-col gap-3 rounded-xl border border-white/6 bg-white/2 p-3">
                             <ImageUpload
                                 bucket="project-images"
+                                resize={2400}
                                 folder={uploadFolder}
                                 path={image.image_path}
                                 url={image.image_url}
@@ -466,6 +469,7 @@ export default function ProjectForm ({ project, technologies }: Props) {
                         <div className="flex flex-col gap-3 rounded-xl border border-white/6 bg-white/2 p-3">
                             <ImageUpload
                                 bucket="project-images"
+                                resize={2400}
                                 folder={uploadFolder}
                                 path={null}
                                 url={null}

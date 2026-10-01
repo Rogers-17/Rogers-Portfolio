@@ -36,6 +36,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${atydisplay.variable} h-full antialiased scroll-smooth [-webkit-tap-highlight-color:transparent]`}
     >
       <body className="flex min-h-screen flex-col bg-surface text-fg leading-[1.6]">

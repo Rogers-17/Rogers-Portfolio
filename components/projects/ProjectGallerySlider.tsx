@@ -92,7 +92,7 @@ export default function ProjectGallerySlider ({ slides, label }: { slides: Slide
                             src={slide.url}
                             alt={slide.alt}
                             fill
-                            priority={slideIndex === 0}
+                            preload={slideIndex === 0}
                             loading={slideIndex === 0 ? undefined : "lazy"}
                             draggable={false}
                             sizes="(min-width: 1200px) 1040px, 100vw"
