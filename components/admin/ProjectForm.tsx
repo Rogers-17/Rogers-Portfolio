@@ -288,7 +288,7 @@ export default function ProjectForm ({ project, technologies }: Props) {
                 <TextField label="Website URL" type="url" placeholder="https://" value={state.website_url} onChange={event => set("website_url", event.target.value)} error={errors.website_url} hint="Shows the “Visit website” button when set." />
             </Card>
 
-            <Card title="Cover image" hint="Used on project cards and the detail page header. PNG, JPG, WEBP, AVIF or GIF up to 10 MB.">
+            <Card title="Cover image" hint="Shown on the project cards (home page and /projects). PNG, JPG, WEBP, AVIF or GIF up to 10 MB.">
                 <div className="grid gap-5 lg:grid-cols-2">
                     <ImageUpload
                         bucket="project-images"
@@ -437,7 +437,7 @@ export default function ProjectForm ({ project, technologies }: Props) {
                 </div>
             </Card>
 
-            <Card title="Gallery" hint="Extra images shown on the project page (optional).">
+            <Card title="Gallery" hint="Shown as a swipeable slider at the top of the project page, in this order. Landscape images (16:10) look best. Without gallery images the cover is shown there instead.">
                 {errors.gallery && <p className="text-xs text-rose-400">{errors.gallery}</p>}
                 <div className="grid gap-4 grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-3">
                     {state.gallery.map((image, index) => (

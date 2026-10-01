@@ -7,6 +7,7 @@ import LetsWorkCTA from "@/sections/LetsWorkCTA"
 import DetailSection from "@/components/projects/DetailSection"
 import FeatureAccordion from "@/components/projects/FeatureAccordion"
 import ImagePlaceholder from "@/components/projects/ImagePlaceholder"
+import ProjectGallerySlider from "@/components/projects/ProjectGallerySlider"
 import Prose from "@/components/projects/Prose"
 import StatusBadge from "@/components/projects/StatusBadge"
 import TechGrid from "@/components/projects/TechGrid"
@@ -84,6 +85,9 @@ export default async function ProjectDetailPage ({ params }: Props) {
                     </div>
                 </dl>
 
+                {project.gallery.length > 0 ? (
+                    <ProjectGallerySlider slides={project.gallery} label={project.name} />
+                ) : (
                 <div className="relative mt-8 aspect-[16/10] overflow-hidden rounded-2xl bg-card">
                     {project.coverImageUrl ? (
                         <Image
@@ -98,6 +102,7 @@ export default async function ProjectDetailPage ({ params }: Props) {
                         <ImagePlaceholder label={project.name} />
                     )}
                 </div>
+                )}
 
                 {project.overview && (
                     <Prose text={project.overview} className="mt-12 text-lg leading-[1.85] text-muted md:w-3/5" />
@@ -147,24 +152,6 @@ export default async function ProjectDetailPage ({ params }: Props) {
                     {project.features.length > 0 && (
                         <DetailSection title="Features">
                             <FeatureAccordion features={project.features} />
-                        </DetailSection>
-                    )}
-
-                    {project.gallery.length > 0 && (
-                        <DetailSection title="Gallery">
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                {project.gallery.map(image => (
-                                    <Image
-                                        key={image.id}
-                                        src={image.url}
-                                        alt={image.alt}
-                                        width={1200}
-                                        height={900}
-                                        sizes="(min-width: 768px) 25vw, 100vw"
-                                        className="h-auto w-full rounded-xl"
-                                    />
-                                ))}
-                            </div>
                         </DetailSection>
                     )}
 
