@@ -4,7 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import type { IconType } from "react-icons"
-import { FiBriefcase, FiClipboard, FiEdit3, FiExternalLink, FiFileText, FiGrid, FiImage, FiInbox, FiLayers, FiLogOut, FiMail, FiMenu, FiMessageSquare, FiUser, FiX } from "react-icons/fi"
+import { FiBriefcase, FiClipboard, FiEdit3, FiExternalLink, FiFileText, FiGrid, FiImage, FiInbox, FiLayers, FiLogOut, FiMail, FiMenu, FiMessageSquare, FiTarget, FiUser, FiX } from "react-icons/fi"
 import { adminFetch } from "@/lib/admin/client"
 import { ToastProvider } from "@/components/admin/Toast"
 
@@ -21,10 +21,12 @@ const navItems: NavItem[] = [
     { href: "/admin/project-form", label: "Project form", icon: FiClipboard },
     { href: "/admin/resumes", label: "Resumes", icon: FiFileText },
     { href: "/admin/cover-letters", label: "Cover letters", icon: FiMail },
+    { href: "/admin/jobs", label: "Job tracker", icon: FiTarget },
     { href: "/admin/inquiries", label: "Inquiries", icon: FiInbox },
 ]
 
 const INQUIRIES_HREF = "/admin/inquiries"
+const JOBS_HREF = "/admin/jobs"
 
 // Editors that need the full width of the screen.
 const WIDE_ROUTES = /^\/admin\/(resumes|cover-letters)\/[^/]+$/
@@ -51,10 +53,10 @@ function CountBadge ({ count, compact = false }: { count: number, compact?: bool
         : <span className="ml-auto rounded-full bg-accent-1/90 px-2 py-0.5 text-[11px] leading-none font-bold text-white">{label}<span className="sr-only"> new</span></span>
 }
 
-type NavProps = { variant: "full" | "rail", isActive: (href: string) => boolean, newInquiries: number, onNavigate?: () => void }
+type NavProps = { variant: "full" | "rail", isActive: (href: string) => boolean, newInquiries: number, dueFollowUps: number, onNavigate?: () => void }
 
 // One list, rendered in the full sidebar, the icon rail and the phone drawer.
-function NavLinks ({ variant, isActive, newInquiries, onNavigate }: NavProps) {
+function NavLinks ({ variant, isActive, newInquiries, dueFollowUps, onNavigate }: NavProps) {
     return (
         <nav className={`flex flex-col gap-1 ${variant === "rail" ? "items-center" : ""}`} aria-label="Admin">
             {navItems.map(({ href, label, icon: Icon }) => {
@@ -73,6 +75,7 @@ function NavLinks ({ variant, isActive, newInquiries, onNavigate }: NavProps) {
                         <Icon className={`shrink-0 transition-colors ${variant === "rail" ? "text-lg" : "text-[17px]"} ${active ? "text-accent-1" : "text-dim group-hover:text-white"}`} aria-hidden="true" />
                         {variant === "full" && <span className="truncate">{label}</span>}
                         {href === INQUIRIES_HREF && <CountBadge count={newInquiries} compact={variant === "rail"} />}
+                        {href === JOBS_HREF && <CountBadge count={dueFollowUps} compact={variant === "rail"} />}
                     </Link>
                 )
             })}
@@ -80,7 +83,7 @@ function NavLinks ({ variant, isActive, newInquiries, onNavigate }: NavProps) {
     )
 }
 
-export default function AdminShell ({ email, newInquiries = 0, children }: { email: string, newInquiries?: number, children: React.ReactNode }) {
+export default function AdminShell ({ email, newInquiries = 0, dueFollowUps = 0, children }: { email: string, newInquiries?: number, dueFollowUps?: number, children: React.ReactNode }) {
     const pathname = usePathname()
     const [drawerOpen, setDrawerOpen] = React.useState(false)
     const [signingOut, setSigningOut] = React.useState(false)
@@ -172,7 +175,7 @@ export default function AdminShell ({ email, newInquiries = 0, children }: { ema
                 <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col gap-6 overflow-y-auto border-r border-white/6 bg-card px-3 py-5 lg:flex">
                     <div className="px-2 pt-1">{logo()}</div>
                     <div className="flex-1">
-                        <NavLinks variant="full" isActive={isActive} newInquiries={newInquiries} />
+                        <NavLinks variant="full" isActive={isActive} newInquiries={newInquiries} dueFollowUps={dueFollowUps} />
                     </div>
                     {account}
                 </aside>
@@ -181,7 +184,7 @@ export default function AdminShell ({ email, newInquiries = 0, children }: { ema
                 <aside className="fixed inset-y-0 left-0 z-40 hidden w-16 flex-col items-center gap-6 overflow-y-auto border-r border-white/6 bg-card py-5 md:flex lg:hidden">
                     {logo(true)}
                     <div className="flex-1">
-                        <NavLinks variant="rail" isActive={isActive} newInquiries={newInquiries} />
+                        <NavLinks variant="rail" isActive={isActive} newInquiries={newInquiries} dueFollowUps={dueFollowUps} />
                     </div>
                     <div className="flex flex-col items-center gap-1">
                         <a href="/" target="_blank" rel="noopener noreferrer" aria-label="View site" title="View site" className={itemClass(false, "rail")}>
@@ -232,7 +235,7 @@ export default function AdminShell ({ email, newInquiries = 0, children }: { ema
                             </button>
                         </div>
                         <div className="flex-1">
-                            <NavLinks variant="full" isActive={isActive} newInquiries={newInquiries} onNavigate={() => setDrawerOpen(false)} />
+                            <NavLinks variant="full" isActive={isActive} newInquiries={newInquiries} dueFollowUps={dueFollowUps} onNavigate={() => setDrawerOpen(false)} />
                         </div>
                         {account}
                     </div>

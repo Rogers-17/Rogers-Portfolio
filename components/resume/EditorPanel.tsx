@@ -2,14 +2,14 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { LuChartColumn, LuChevronLeft, LuEye, LuEyeOff, LuLayoutGrid, LuPalette, LuPlus, LuSparkles, LuUser, LuWandSparkles } from "react-icons/lu"
+import { LuChartColumn, LuChevronLeft, LuEye, LuEyeOff, LuHistory, LuLayoutGrid, LuPalette, LuPlus, LuShare2, LuSparkles, LuUser, LuWandSparkles } from "react-icons/lu"
 import { SECTION_ICONS } from "@/components/resume/fields"
 import { SortableList, SortableRow } from "@/components/resume/Sortable"
 import { useAi, type AiUsage } from "@/components/resume/ai/context"
 import { SECTION_LABELS, SECTION_TYPES, type ResumeSection, type SectionType } from "@/lib/resume/schema"
 
 export type Tab = "sections" | "insights" | "tailor"
-export type Selection = "copilot" | "contact" | "design" | "finish" | `section:${string}`
+export type Selection = "copilot" | "contact" | "design" | "history" | "share" | "finish" | `section:${string}`
 
 type Props = {
     title: string
@@ -133,6 +133,14 @@ export default function EditorPanel ({ title, targetRole, tab, onTab, selected, 
                     <button type="button" onClick={() => onSelect("design")} className={itemClass(selected === "design")}>
                         {selected === "design" && <ActiveBar />}
                         <LuPalette className="shrink-0" aria-hidden="true" /> Design
+                    </button>
+                    <button type="button" onClick={() => onSelect("history")} className={itemClass(selected === "history")}>
+                        {selected === "history" && <ActiveBar />}
+                        <LuHistory className="shrink-0" aria-hidden="true" /> History
+                    </button>
+                    <button type="button" onClick={() => onSelect("share")} className={itemClass(selected === "share")}>
+                        {selected === "share" && <ActiveBar />}
+                        <LuShare2 className="shrink-0" aria-hidden="true" /> Share &amp; QR code
                     </button>
                     <button type="button" onClick={() => onSelect("finish")} className={itemClass(selected === "finish")}>
                         {selected === "finish" && <ActiveBar />}

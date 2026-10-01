@@ -3,13 +3,15 @@
 import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { LuEye, LuLoaderCircle, LuPencil, LuSave, LuX } from "react-icons/lu"
+import { LuBriefcase, LuEye, LuLoaderCircle, LuPencil, LuSave, LuShare2, LuX } from "react-icons/lu"
 import { useUnsavedGuard } from "@/components/admin/form-hooks"
 import { useToast } from "@/components/admin/Toast"
 import ContactForm from "@/components/resume/ContactForm"
 import DesignForm from "@/components/resume/DesignForm"
 import EditorPanel, { type Selection, type Tab } from "@/components/resume/EditorPanel"
 import FinishPanel from "@/components/resume/FinishPanel"
+import HistoryPanel from "@/components/resume/HistoryPanel"
+import SharePanel from "@/components/resume/SharePanel"
 import PdfPreview from "@/components/resume/PdfPreview"
 import SectionEditor from "@/components/resume/SectionEditor"
 import CopilotPanel from "@/components/resume/ai/CopilotPanel"
@@ -20,7 +22,7 @@ import { adminFetch } from "@/lib/admin/client"
 import { resumeToText } from "@/lib/resume/normalize"
 import { newSection, type ResumeData, type ResumeRecord, type ResumeSection, type SectionType, type TailorKeyword } from "@/lib/resume/schema"
 
-type Props = { resume: ResumeRecord, photoUrl: string | null, usage: AiUsage | null }
+type Props = { resume: ResumeRecord, photoUrl: string | null, usage: AiUsage | null, applications?: number }
 
 type EditorState = Pick<ResumeRecord, "title" | "target_role" | "template" | "design" | "data" | "job_description" | "job_company">
 
@@ -40,7 +42,7 @@ const subscribeWide = (callback: () => void) => {
     return () => query.removeEventListener("change", callback)
 }
 
-export default function ResumeEditor ({ resume, photoUrl: initialPhotoUrl, usage }: Props) {
+export default function ResumeEditor ({ resume, photoUrl: initialPhotoUrl, usage, applications = 0 }: Props) {
     const router = useRouter()
     const { notify } = useToast()
     const [state, setState] = React.useState(() => toState(resume))
@@ -53,6 +55,7 @@ export default function ResumeEditor ({ resume, photoUrl: initialPhotoUrl, usage
     const [pages, setPages] = React.useState(0)
     const [showPreview, setShowPreview] = React.useState(false)
     const [editingTitle, setEditingTitle] = React.useState(false)
+    const [savedCount, setSavedCount] = React.useState(0)
     const wide = React.useSyncExternalStore(subscribeWide, () => window.matchMedia("(min-width: 1440px)").matches, () => false)
 
     const dirty = JSON.stringify(state) !== saved
@@ -76,6 +79,7 @@ export default function ResumeEditor ({ resume, photoUrl: initialPhotoUrl, usage
             return false
         }
         setSaved(JSON.stringify(snapshot))
+        setSavedCount(count => count + 1)
         notify("Resume saved.")
         return true
     }, [notify, resume.id])
@@ -136,6 +140,27 @@ export default function ResumeEditor ({ resume, photoUrl: initialPhotoUrl, usage
         content = <CopilotPanel />
     } else if (selected === "design") {
         content = <DesignForm template={state.template} design={state.design} onTemplate={template => setState(current => ({ ...current, template }))} onDesign={design => setState(current => ({ ...current, design }))} />
+    } else if (selected === "history") {
+        content = (
+            <HistoryPanel
+                resumeId={resume.id}
+                photoUrl={photoUrl}
+                refreshKey={savedCount}
+                current={() => ({ title: stateRef.current.title, template: stateRef.current.template, design: stateRef.current.design, data: stateRef.current.data })}
+                onRestore={version => setState(current => ({ ...current, title: version.title, template: version.template, design: version.design, data: version.data }))}
+            />
+        )
+    } else if (selected === "share") {
+        content = (
+            <SharePanel
+                resumeId={resume.id}
+                photoUrl={photoUrl}
+                showPhoto={state.design.showPhoto}
+                hasPhoto={Boolean(state.data.contact.photoPath)}
+                dirty={dirty}
+                save={save}
+            />
+        )
     } else if (selected === "finish") {
         content = <FinishPanel data={state.data} pages={pages} onGo={setSelected} onInsights={() => setTab("insights")} />
     } else if (activeSection) {
@@ -193,9 +218,17 @@ export default function ResumeEditor ({ resume, photoUrl: initialPhotoUrl, usage
                                 <LuPencil className="shrink-0 text-dim group-hover:text-white" aria-label="Rename" />
                             </button>
                         )}
+                        {applications > 0 && (
+                            <Link href={`/admin/jobs?resume=${resume.id}`} className="mt-1 inline-flex items-center gap-1.5 text-xs text-muted hover:text-white">
+                                <LuBriefcase aria-hidden="true" /> Used in {applications} application{applications === 1 ? "" : "s"}
+                            </Link>
+                        )}
                     </div>
                     <div className="flex items-center gap-2">
                         <span className="hidden text-xs text-muted sm:inline" aria-live="polite">{saving ? "Saving…" : dirty ? "Unsaved changes" : "All changes saved"}</span>
+                        <button type="button" onClick={() => { setSelected("share"); setTab("sections") }} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-white/4 px-4 text-sm font-semibold hover:border-accent-1">
+                            <LuShare2 aria-hidden="true" /> <span className="hidden sm:inline">Share</span>
+                        </button>
                         {!wide && (
                             <button type="button" onClick={() => setShowPreview(true)} className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-white/4 px-4 text-sm font-semibold hover:border-accent-1">
                                 <LuEye aria-hidden="true" /> Preview

@@ -22,3 +22,8 @@ export function clientIp (request: Request) {
 export function hashIp (request: Request) {
     return createHmac("sha256", salt()).update(clientIp(request)).digest("hex")
 }
+
+// Same hash from a Headers object (Server Components use next/headers, not a Request).
+export function hashIpFromHeaders (headers: Headers) {
+    return hashIp({ headers } as Request)
+}

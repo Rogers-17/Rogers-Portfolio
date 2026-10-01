@@ -51,6 +51,34 @@ export function toPdfImage (url: string | null): Promise<string | null> {
     return pending
 }
 
+// Small JPEG (≤ 600px) of a photo, stored with a share link so the public page never needs
+// access to the private bucket.
+export async function toShareJpeg (url: string | null): Promise<string | null> {
+    if (!url) return null
+    try {
+        const response = await fetch(url)
+        if (!response.ok) return null
+        const bitmap = await createImageBitmap(await response.blob())
+        const scale = Math.min(1, 600 / Math.max(bitmap.width, bitmap.height))
+        const canvas = document.createElement("canvas")
+        canvas.width = Math.round(bitmap.width * scale)
+        canvas.height = Math.round(bitmap.height * scale)
+        const context = canvas.getContext("2d")
+        if (!context) return null
+        context.fillStyle = "#ffffff"
+        context.fillRect(0, 0, canvas.width, canvas.height)
+        context.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+        bitmap.close()
+        for (const quality of [0.85, 0.7, 0.55]) {
+            const data = canvas.toDataURL("image/jpeg", quality)
+            if (data.length <= 400_000) return data
+        }
+        return null
+    } catch {
+        return null
+    }
+}
+
 export function downloadBlob (blob: Blob, filename: string) {
     const url = URL.createObjectURL(blob)
     const link = document.createElement("a")

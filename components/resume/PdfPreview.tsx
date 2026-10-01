@@ -16,11 +16,13 @@ type ViewerProps = {
     filename: string
     onPages?: (pages: number) => void
     className?: string
+    // Hide the Open / PDF buttons (shared links with downloads turned off).
+    allowDownload?: boolean
 }
 
 // The preview IS the PDF: the same document is rendered to a blob and shown in the
 // browser's PDF viewer, so the download always matches what you see.
-export function PdfViewer ({ documentKey, build, filename, onPages, className = "" }: ViewerProps) {
+export function PdfViewer ({ documentKey, build, filename, onPages, className = "", allowDownload = true }: ViewerProps) {
     const [url, setUrl] = React.useState<string | null>(null)
     const [blob, setBlob] = React.useState<Blob | null>(null)
     const [pages, setPages] = React.useState(0)
@@ -70,7 +72,7 @@ export function PdfViewer ({ documentKey, build, filename, onPages, className = 
                     {busy && <LuLoaderCircle className="animate-spin text-accent-1" aria-hidden="true" />}
                     {busy ? "Updating preview…" : `${pages} page${pages === 1 ? "" : "s"}`}
                 </p>
-                <div className="flex items-center gap-1">
+                {allowDownload && <div className="flex items-center gap-1">
                     {url && (
                         <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold text-muted hover:bg-white/6 hover:text-white">
                             <LuExternalLink aria-hidden="true" /> Open
@@ -84,7 +86,7 @@ export function PdfViewer ({ documentKey, build, filename, onPages, className = 
                     >
                         <LuDownload aria-hidden="true" /> PDF
                     </button>
-                </div>
+                </div>}
             </div>
             <div className="relative min-h-0 flex-1 bg-[#525659]">
                 {error && <p className="absolute inset-x-4 top-4 z-10 rounded-lg bg-rose-950/90 p-3 text-sm text-rose-100">{error}</p>}

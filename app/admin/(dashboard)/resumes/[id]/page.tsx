@@ -3,6 +3,7 @@ import ResumeEditor from "@/components/resume/ResumeEditor"
 import { requireAdminPage } from "@/lib/admin/auth"
 import { uuidSchema } from "@/lib/admin/schemas"
 import { usageSummary } from "@/lib/ai/openrouter"
+import { countApplicationsForResume } from "@/lib/jobs/queries"
 import { getResume, signPhoto } from "@/lib/resume/queries"
 
 type Props = { params: Promise<{ id: string }> }
@@ -17,10 +18,11 @@ export default async function ResumeEditorPage ({ params }: Props) {
     const resume = await getResume(supabase, id.data)
     if (!resume) notFound()
 
-    const [photoUrl, usage] = await Promise.all([
+    const [photoUrl, usage, applications] = await Promise.all([
         signPhoto(supabase, resume.data.contact.photoPath),
         usageSummary(supabase).catch(() => null),
+        countApplicationsForResume(supabase, resume.id),
     ])
 
-    return <ResumeEditor key={resume.id} resume={resume} photoUrl={photoUrl} usage={usage} />
+    return <ResumeEditor key={resume.id} resume={resume} photoUrl={photoUrl} usage={usage} applications={applications} />
 }
