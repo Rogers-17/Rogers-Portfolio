@@ -4,10 +4,11 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import type { IconType } from "react-icons"
-import { FiArchive, FiBriefcase, FiClipboard, FiEdit3, FiExternalLink, FiFileText, FiGrid, FiImage, FiInbox, FiLayers, FiLogOut, FiMail, FiMenu, FiMessageSquare, FiTarget, FiUser, FiX } from "react-icons/fi"
+import { FiArchive, FiBriefcase, FiChevronsLeft, FiChevronsRight, FiClipboard, FiEdit3, FiExternalLink, FiFileText, FiGrid, FiImage, FiInbox, FiLayers, FiLogOut, FiMail, FiMenu, FiMessageSquare, FiTarget, FiUser, FiX } from "react-icons/fi"
 import { adminFetch } from "@/lib/admin/client"
 import { DialogProvider } from "@/components/admin/Dialog"
 import { ToastProvider } from "@/components/admin/Toast"
+import { SIDEBAR_COOKIE } from "@/lib/admin/sidebar"
 
 type NavItem = { href: string, label: string, icon: IconType }
 
@@ -85,8 +86,37 @@ function NavLinks ({ variant, isActive, newInquiries, dueFollowUps, onNavigate }
     )
 }
 
-export default function AdminShell ({ email, newInquiries = 0, dueFollowUps = 0, children }: { email: string, newInquiries?: number, dueFollowUps?: number, children: React.ReactNode }) {
+type ShellProps = { email: string, newInquiries?: number, dueFollowUps?: number, initialCollapsed?: boolean, children: React.ReactNode }
+
+const isTyping = (target: EventTarget | null) =>
+    target instanceof HTMLElement && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))
+
+export default function AdminShell ({ email, newInquiries = 0, dueFollowUps = 0, initialCollapsed = false, children }: ShellProps) {
     const pathname = usePathname()
+    const [collapsed, setCollapsed] = React.useState(initialCollapsed)
+
+    // Desktop only: remembered in a cookie so the server renders the same state next time.
+    const toggleCollapsed = React.useCallback(() => {
+        setCollapsed(current => {
+            const next = !current
+            document.cookie = next
+                ? `${SIDEBAR_COOKIE}=collapsed; path=/admin; max-age=31536000; samesite=lax`
+                : `${SIDEBAR_COOKIE}=; path=/admin; max-age=0; samesite=lax`
+            return next
+        })
+    }, [])
+
+    // Ctrl/⌘ + B, except while typing (the blog editor uses it for bold).
+    React.useEffect(() => {
+        function onKeyDown (event: KeyboardEvent) {
+            if (!(event.ctrlKey || event.metaKey) || event.shiftKey || event.altKey || event.key.toLowerCase() !== "b") return
+            if (isTyping(event.target) || !window.matchMedia("(min-width: 1200px)").matches) return
+            event.preventDefault()
+            toggleCollapsed()
+        }
+        document.addEventListener("keydown", onKeyDown)
+        return () => document.removeEventListener("keydown", onKeyDown)
+    }, [toggleCollapsed])
     const [drawerOpen, setDrawerOpen] = React.useState(false)
     const [signingOut, setSigningOut] = React.useState(false)
     const [lastPathname, setLastPathname] = React.useState(pathname)
@@ -174,22 +204,30 @@ export default function AdminShell ({ email, newInquiries = 0, dueFollowUps = 0,
         <ToastProvider>
         <DialogProvider>
             <div className="flex min-h-screen w-full">
-                {/* ≥ lg: full sidebar */}
-                <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col gap-6 overflow-y-auto border-r border-white/6 bg-card px-3 py-5 lg:flex">
+                {/* ≥ lg: full sidebar (unless collapsed) */}
+                <aside className={`fixed inset-y-0 left-0 z-40 hidden w-60 animate-fade-in flex-col gap-6 overflow-y-auto border-r border-white/6 bg-card px-3 py-5 ${collapsed ? "" : "lg:flex"}`}>
                     <div className="px-2 pt-1">{logo()}</div>
                     <div className="flex-1">
                         <NavLinks variant="full" isActive={isActive} newInquiries={newInquiries} dueFollowUps={dueFollowUps} />
                     </div>
-                    {account}
+                    <div className="flex flex-col gap-2">
+                        <button type="button" onClick={toggleCollapsed} aria-expanded="true" aria-label="Collapse sidebar" title="Collapse sidebar (Ctrl+B)" className={`inline-flex min-h-10 items-center gap-3 rounded-xl px-3 text-sm font-medium text-muted hover:bg-white/4 hover:text-white ${focusRing}`}>
+                            <FiChevronsLeft className="text-[17px] text-dim" aria-hidden="true" /> Collapse
+                        </button>
+                        {account}
+                    </div>
                 </aside>
 
-                {/* md – lg: icon rail */}
-                <aside className="fixed inset-y-0 left-0 z-40 hidden w-16 flex-col items-center gap-6 overflow-y-auto border-r border-white/6 bg-card py-5 md:flex lg:hidden">
+                {/* md – lg: icon rail; ≥ lg when collapsed */}
+                <aside className={`fixed inset-y-0 left-0 z-40 hidden w-16 animate-fade-in flex-col items-center gap-6 overflow-y-auto border-r border-white/6 bg-card py-5 md:flex ${collapsed ? "" : "lg:hidden"}`}>
                     {logo(true)}
                     <div className="flex-1">
                         <NavLinks variant="rail" isActive={isActive} newInquiries={newInquiries} dueFollowUps={dueFollowUps} />
                     </div>
                     <div className="flex flex-col items-center gap-1">
+                        <button type="button" onClick={toggleCollapsed} aria-expanded="false" aria-label="Expand sidebar" title="Expand sidebar (Ctrl+B)" className={`${itemClass(false, "rail")} hidden lg:flex`}>
+                            <FiChevronsRight className="text-lg" aria-hidden="true" />
+                        </button>
                         <a href="/" target="_blank" rel="noopener noreferrer" aria-label="View site" title="View site" className={itemClass(false, "rail")}>
                             <FiExternalLink className="text-lg" aria-hidden="true" />
                         </a>
@@ -244,7 +282,7 @@ export default function AdminShell ({ email, newInquiries = 0, dueFollowUps = 0,
                     </div>
                 </div>
 
-                <main className="w-full min-w-0 px-4 pt-20 pb-40 md:ml-16 md:px-8 md:pt-8 md:pb-32 lg:ml-60 lg:px-10 lg:pt-10">
+                <main className={`w-full min-w-0 px-4 pt-20 pb-40 transition-[margin] duration-200 ease-out md:ml-16 md:px-8 md:pt-8 md:pb-32 lg:px-10 lg:pt-10 ${collapsed ? "lg:ml-16" : "lg:ml-60"}`}>
                     <div className={`mx-auto ${WIDE_ROUTES.test(pathname) ? "max-w-none" : "max-w-6xl"}`}>{children}</div>
                 </main>
             </div>

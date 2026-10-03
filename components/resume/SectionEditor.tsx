@@ -58,13 +58,13 @@ export default function SectionEditor ({ section, onChange, onRemove }: Props) {
                 )}
             />
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 @xl:grid-cols-2">
                 <RField label="Section title" value={section.title} onChange={title => onChange({ ...section, title })} maxLength={80} placeholder={SECTION_LABELS[section.type]} />
                 <RField label="Note under the title (optional)" value={section.note} onChange={note => onChange({ ...section, note })} maxLength={300} placeholder={section.type === "references" ? "Available on request" : ""} />
             </div>
 
             {isSummary ? (
-                <div className="mt-6 grid gap-4 md:grid-cols-2">
+                <div className="mt-6 grid gap-4 @xl:grid-cols-2">
                     {(items.length ? items : [emptyItem("summary") as AnyItem]).slice(0, 1).map(item => (
                         <RTextArea
                             key={item.id}
@@ -103,7 +103,7 @@ export default function SectionEditor ({ section, onChange, onRemove }: Props) {
                                                 </button>
                                             </div>
                                             {open && (
-                                                <div className="grid gap-4 border-t border-white/6 p-4 md:grid-cols-2">
+                                                <div className="grid gap-4 border-t border-white/6 p-4 @xl:grid-cols-2">
                                                     {SECTION_FIELDS[section.type].map(field => (
                                                         <ItemField key={field.key} field={field} item={item} onChange={patch => updateItem(item.id, patch)} sectionType={section.type} />
                                                     ))}
@@ -145,7 +145,7 @@ function ItemField ({ field, item, onChange, sectionType }: { field: FieldDef, i
     }
     const disabled = field.key === "end" && Boolean(item.current)
     return (
-        <div className={field.wide ? "md:col-span-2" : ""}>
+        <div className={field.wide ? "@xl:col-span-2" : ""}>
             {disabled ? (
                 <div className="flex flex-col gap-1.5">
                     <span className={labelClass}>{field.label}</span>
@@ -178,7 +178,7 @@ function CompactList ({ section, items, setItems }: { section: ResumeSection, it
                         {({ handle }) => (
                             <>
                                 {handle}
-                                <div className={`grid min-w-0 flex-1 gap-2 ${fields.length > 1 ? "sm:grid-cols-2" : ""}`}>
+                                <div className={`grid min-w-0 flex-1 gap-2 ${fields.length > 1 ? "@lg:grid-cols-2" : ""}`}>
                                     {fields.map(field => (
                                         <input
                                             key={field.key}
@@ -199,7 +199,7 @@ function CompactList ({ section, items, setItems }: { section: ResumeSection, it
                     </SortableRow>
                 ))}
             </SortableList>
-            <div className="flex flex-col gap-2 sm:flex-row">
+            <div className="flex flex-col gap-2 @md:flex-row">
                 <input
                     aria-label={`Add ${SECTION_LABELS[section.type].toLowerCase()}`}
                     value={bulk}

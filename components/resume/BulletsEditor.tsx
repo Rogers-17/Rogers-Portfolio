@@ -47,7 +47,7 @@ export default function BulletsEditor ({ label, bullets, onChange, max, renderBu
     }
 
     return (
-        <div className="flex flex-col gap-2 md:col-span-2">
+        <div className="flex flex-col gap-2 @xl:col-span-2">
             <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className={labelClass}>{label}</span>
                 {listAi}

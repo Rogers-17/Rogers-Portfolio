@@ -59,7 +59,7 @@ export default function DesignForm ({ template, design, onTemplate, onDesign }: 
             <PanelHeading title="Design" subtitle="Template, colour, spacing and paper size" />
 
             <p className={labelClass}>Template</p>
-            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="mt-3 grid grid-cols-2 gap-3 @2xl:grid-cols-4">
                 {TEMPLATES.map(key => {
                     const active = key === template
                     return (
@@ -96,7 +96,7 @@ export default function DesignForm ({ template, design, onTemplate, onDesign }: 
                 ))}
             </div>
 
-            <div className="mt-8 grid gap-6 md:grid-cols-3">
+            <div className="mt-8 grid gap-6 @2xl:grid-cols-3">
                 <fieldset>
                     <legend className={labelClass}>Density</legend>
                     <div className="mt-3 flex rounded-lg border border-white/10 p-1">

@@ -129,7 +129,7 @@ export default function SharePanel ({ resumeId, photoUrl, showPhoto, hasPhoto, d
         <div>
             <PanelHeading title="Share" subtitle="A private link anyone can open without logging in. It shows the resume as it is right now; later edits don't change it." />
 
-            <div className="grid gap-4 rounded-xl border border-white/6 bg-white/2 p-4 md:grid-cols-3">
+            <div className="grid gap-4 rounded-xl border border-white/6 bg-white/2 p-4 @2xl:grid-cols-3">
                 <RField label="Label (for you)" value={label} onChange={setLabel} maxLength={80} placeholder="e.g. Acme recruiter" />
                 <label className="flex flex-col gap-1.5">
                     <span className={labelClass}>Expires</span>
@@ -143,7 +143,7 @@ export default function SharePanel ({ resumeId, photoUrl, showPhoto, hasPhoto, d
                     <input type="checkbox" checked={allowDownload} onChange={event => setAllowDownload(event.target.checked)} className="size-4 accent-accent-1" />
                     Allow download
                 </label>
-                <button type="button" onClick={create} disabled={creating} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-linear-65/srgb from-accent-1 to-accent-2 px-5 text-sm font-bold text-white disabled:opacity-50 md:col-span-3 md:justify-self-start">
+                <button type="button" onClick={create} disabled={creating} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-linear-65/srgb from-accent-1 to-accent-2 px-5 text-sm font-bold text-white disabled:opacity-50 @2xl:col-span-3 @2xl:justify-self-start">
                     {creating ? <LuLoaderCircle className="animate-spin" aria-hidden="true" /> : <LuLink aria-hidden="true" />} Create link
                 </button>
             </div>

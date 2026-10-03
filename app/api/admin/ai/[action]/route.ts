@@ -34,7 +34,7 @@ const inputs = {
         resume: z.string().min(20, "Link a resume with some content").max(40000),
         company: short(120),
         jobTitle: short(120),
-        recipient: short(300),
+        recipient: short(600),
         jobDescription: short(20000),
         tone: z.enum(["professional", "warm", "confident", "concise"]).default("professional"),
         notes: short(1000),

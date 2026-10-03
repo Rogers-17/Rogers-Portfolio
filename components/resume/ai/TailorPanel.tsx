@@ -129,7 +129,7 @@ export default function TailorPanel ({ resumeId, data, jobDescription, jobCompan
                     <textarea id="job-description" value={jobDescription} onChange={event => onJob(event.target.value, jobCompany)} maxLength={20000} rows={8} placeholder="Paste the full job posting here…" className={`${inputClass} field-sizing-content min-h-40 max-h-[50vh] resize-y leading-relaxed`} />
                     <p className="text-right text-[11px] text-dim">{jobDescription.length}/20000 · saved with the resume</p>
                 </div>
-                <button type="button" onClick={analyze} disabled={loading || jobDescription.trim().length < 80 || limited} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-linear-65/srgb from-accent-1 to-accent-2 px-6 text-sm font-bold text-white disabled:opacity-50 sm:self-start">
+                <button type="button" onClick={analyze} disabled={loading || jobDescription.trim().length < 80 || limited} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-linear-65/srgb from-accent-1 to-accent-2 px-6 text-sm font-bold text-white disabled:opacity-50 @md:self-start">
                     {loading ? <LuLoaderCircle className="animate-spin" aria-hidden="true" /> : <LuWandSparkles aria-hidden="true" />}
                     {loading ? "Analysing…" : result ? "Analyse again" : "Analyse & suggest"}
                 </button>

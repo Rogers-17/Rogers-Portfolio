@@ -20,7 +20,7 @@ export function RField ({ label, value, onChange, placeholder, maxLength, wide, 
 }) {
     const id = React.useId()
     return (
-        <div className={`flex min-w-0 flex-col gap-1.5 ${wide ? "md:col-span-2" : ""}`}>
+        <div className={`flex min-w-0 flex-col gap-1.5 ${wide ? "@xl:col-span-2" : ""}`}>
             <div className="flex items-center justify-between gap-2">
                 <label htmlFor={id} className={labelClass}>{label}</label>
                 {action}
@@ -42,7 +42,7 @@ export function RTextArea ({ label, value, onChange, placeholder, maxLength, row
 }) {
     const id = React.useId()
     return (
-        <div className="flex min-w-0 flex-col gap-1.5 md:col-span-2">
+        <div className="flex min-w-0 flex-col gap-1.5 @xl:col-span-2">
             <div className="flex items-center justify-between gap-2">
                 <label htmlFor={id} className={labelClass}>{label}</label>
                 {action}
@@ -55,7 +55,7 @@ export function RTextArea ({ label, value, onChange, placeholder, maxLength, row
 
 export function RCheckbox ({ label, checked, onChange }: { label: string, checked: boolean, onChange: (value: boolean) => void }) {
     return (
-        <label className="flex min-h-10 cursor-pointer items-center gap-2.5 self-end text-sm text-fg/90 md:col-span-2">
+        <label className="flex min-h-10 cursor-pointer items-center gap-2.5 self-end text-sm text-fg/90 @xl:col-span-2">
             <input type="checkbox" checked={checked} onChange={event => onChange(event.target.checked)} className="size-4 accent-accent-1" />
             {label}
         </label>

@@ -60,9 +60,9 @@ export default function EditorPanel ({ title, targetRole, tab, onTab, selected, 
                         role="tab"
                         aria-selected={tab === key}
                         onClick={() => onTab(key)}
-                        className={`inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md text-xs font-semibold transition-colors ${tab === key ? "bg-white text-surface" : "text-muted hover:text-white"}`}
+                        className={`inline-flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-md px-1 text-[11px] font-semibold transition-colors ${tab === key ? "bg-white text-surface" : "text-muted hover:text-white"}`}
                     >
-                        <Icon aria-hidden="true" /> {label}
+                        <Icon className="text-sm" aria-hidden="true" /> {label}
                     </button>
                 ))}
             </div>

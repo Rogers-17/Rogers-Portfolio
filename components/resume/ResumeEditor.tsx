@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { LuBriefcase, LuEye, LuLoaderCircle, LuPencil, LuSave, LuShare2, LuX } from "react-icons/lu"
+import { useContainerWidth } from "@/components/resume/useContainerWidth"
 import { useUnsavedGuard } from "@/components/admin/form-hooks"
 import { useToast } from "@/components/admin/Toast"
 import ContactForm from "@/components/resume/ContactForm"
@@ -36,10 +37,15 @@ const toState = (resume: ResumeRecord): EditorState => ({
     job_company: resume.job_company,
 })
 
-const subscribeWide = (callback: () => void) => {
-    const query = window.matchMedia("(min-width: 1440px)")
-    query.addEventListener("change", callback)
-    return () => query.removeEventListener("change", callback)
+// Columns follow the space the editor actually has (it grows when the sidebar collapses).
+const THREE_COLUMNS = 1120
+const TWO_COLUMNS = 760
+
+function gridColumns (width: number) {
+    if (width === 0) return "lg:grid-cols-[15rem_minmax(0,1fr)]" // before measuring: same as the server render
+    if (width >= THREE_COLUMNS) return "grid-cols-[15rem_minmax(0,1fr)_minmax(22rem,0.9fr)]"
+    if (width >= TWO_COLUMNS) return "grid-cols-[15rem_minmax(0,1fr)]"
+    return ""
 }
 
 export default function ResumeEditor ({ resume, photoUrl: initialPhotoUrl, usage, applications = 0 }: Props) {
@@ -56,7 +62,8 @@ export default function ResumeEditor ({ resume, photoUrl: initialPhotoUrl, usage
     const [showPreview, setShowPreview] = React.useState(false)
     const [editingTitle, setEditingTitle] = React.useState(false)
     const [savedCount, setSavedCount] = React.useState(0)
-    const wide = React.useSyncExternalStore(subscribeWide, () => window.matchMedia("(min-width: 1440px)").matches, () => false)
+    const [layoutRef, layoutWidth] = useContainerWidth<HTMLDivElement>()
+    const wide = layoutWidth >= THREE_COLUMNS
 
     const dirty = JSON.stringify(state) !== saved
     useUnsavedGuard(dirty)
@@ -195,7 +202,7 @@ export default function ResumeEditor ({ resume, photoUrl: initialPhotoUrl, usage
 
     return (
         <AiProvider resumeText={resumeText} targetRole={state.target_role ?? ""} jobDescription={state.job_description ?? ""} initialUsage={usage}>
-            <div className="flex flex-col gap-4">
+            <div ref={layoutRef} className="flex flex-col gap-5">
                 {/* Top bar */}
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="min-w-0">
@@ -241,7 +248,7 @@ export default function ResumeEditor ({ resume, photoUrl: initialPhotoUrl, usage
                     </div>
                 </div>
 
-                <div className={`grid items-start gap-4 ${wide ? "grid-cols-[17rem_minmax(0,1fr)_minmax(0,0.95fr)]" : "lg:grid-cols-[17rem_minmax(0,1fr)]"}`}>
+                <div className={`grid items-start gap-5 ${gridColumns(layoutWidth)}`}>
                     <EditorPanel
                         title={state.title}
                         targetRole={state.target_role ?? ""}
@@ -254,8 +261,8 @@ export default function ResumeEditor ({ resume, photoUrl: initialPhotoUrl, usage
                         onAddSection={addSection}
                         usage={usage}
                     />
-                    <section className="min-w-0 rounded-2xl border border-white/6 bg-card p-4 md:p-7" aria-label="Editor">
-                        {content}
+                    <section className="@container min-w-0 rounded-2xl border border-white/6 bg-card" aria-label="Editor">
+                        <div className="p-4 @xl:p-6 @3xl:p-7">{content}</div>
                     </section>
                     {wide && <div className="sticky top-6 h-[calc(100dvh-3rem)]">{preview}</div>}
                 </div>

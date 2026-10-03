@@ -41,7 +41,7 @@ export default function CopilotPanel () {
             <PanelHeading title="Ask Copilot" subtitle="Ask anything about this resume. It sees the current content, target role and job description." />
             <div className="flex flex-1 flex-col gap-3" aria-live="polite">
                 {messages.length === 0 && (
-                    <div className="grid gap-2 sm:grid-cols-2">
+                    <div className="grid gap-2 @lg:grid-cols-2">
                         {STARTERS.map(starter => (
                             <button key={starter} type="button" onClick={() => ask(starter)} disabled={limited} className="rounded-xl border border-white/8 bg-white/2 p-3 text-left text-sm text-fg/85 hover:border-accent-1 disabled:opacity-40">
                                 <LuSparkles className="mb-1.5 text-accent-1" aria-hidden="true" />

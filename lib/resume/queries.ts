@@ -115,16 +115,23 @@ const letterSchema = z.object({
     title: z.string(),
     company: z.string().nullable(),
     job_title: z.string().nullable(),
+    sender_name: z.string().nullable().default(null),
+    sender_contact: z.string().nullable().default(null),
+    sender_address: z.string().nullable().default(null),
     recipient: z.string().nullable(),
     letter_date: z.string().nullable(),
+    salutation: z.string().nullable().default(null),
+    subject: z.string().nullable().default(null),
     body: z.string(),
+    closing: z.string().nullable().default(null),
+    style: z.enum(["formal", "resume"]).catch("formal"),
     created_at: z.string(),
     updated_at: z.string(),
 })
 
 export type CoverLetterRecord = z.infer<typeof letterSchema>
 
-const LETTER_COLUMNS = "id, resume_id, title, company, job_title, recipient, letter_date, body, created_at, updated_at"
+const LETTER_COLUMNS = "id, resume_id, title, company, job_title, sender_name, sender_contact, sender_address, recipient, letter_date, salutation, subject, body, closing, style, created_at, updated_at"
 
 export async function listCoverLetters (supabase: SupabaseClient): Promise<CoverLetterRecord[]> {
     const { data, error } = await supabase.from("cover_letters").select(LETTER_COLUMNS).order("updated_at", { ascending: false }).limit(200)

@@ -19,7 +19,7 @@ export default function ContactForm ({ contact, photoUrl, onChange, onPhoto }: P
     return (
         <div>
             <PanelHeading title="Personal information" subtitle="Your contact details and professional links" />
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 @xl:grid-cols-2">
                 <RField label="Full name *" value={contact.fullName} onChange={value => set("fullName", value)} maxLength={120} />
                 <RField label="Headline" value={contact.headline} onChange={value => set("headline", value)} maxLength={160} placeholder="e.g. Aspiring IT & Database Professional" />
                 <RField label="Email" type="email" value={contact.email} onChange={value => set("email", value)} maxLength={200} />
@@ -46,7 +46,7 @@ export default function ContactForm ({ contact, photoUrl, onChange, onPhoto }: P
                 </div>
                 <ul className="flex flex-col gap-2">
                     {contact.details.map(detail => (
-                        <li key={detail.id} className="grid grid-cols-[1fr_2fr_auto] gap-2">
+                        <li key={detail.id} className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)_auto] gap-2">
                             <input aria-label="Label" placeholder="Label" value={detail.label} maxLength={40} onChange={event => set("details", contact.details.map(entry => (entry.id === detail.id ? { ...entry, label: event.target.value } : entry)))} className={inputClass} />
                             <input aria-label="Value" placeholder="Value" value={detail.value} maxLength={200} onChange={event => set("details", contact.details.map(entry => (entry.id === detail.id ? { ...entry, value: event.target.value } : entry)))} className={inputClass} />
                             <button type="button" onClick={() => set("details", contact.details.filter(entry => entry.id !== detail.id))} aria-label="Remove detail" className="inline-flex size-10 items-center justify-center rounded-lg text-dim hover:bg-rose-500/10 hover:text-rose-300">
