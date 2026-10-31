@@ -3,8 +3,8 @@ import { DOCUMENTS_BUCKET, getDocumentRow } from "@/lib/documents/queries"
 import { PREVIEWABLE, documentLinkSchema } from "@/lib/documents/schema"
 import { authWithId, type IdContext } from "@/lib/resume/routes"
 
-// Short-lived signed URL for a private document. Share links are not stored (they can't be
-// revoked, they simply expire), and no URL is ever logged.
+// Short-lived signed URL for the admin's own preview or download. Links for other people live in
+// ../shares. No URL is ever logged.
 const SECONDS = { preview: 300, download: 60 } as const
 
 export async function POST (request: Request, context: IdContext) {
@@ -18,7 +18,7 @@ export async function POST (request: Request, context: IdContext) {
     if (!row) return fail(404, "not_found", "Document not found.")
     if (purpose === "preview" && !PREVIEWABLE.includes(row.format)) return fail(400, "not_previewable", "This file type can't be previewed. Download it instead.")
 
-    const expiresIn = purpose === "share" ? parsed.data.expiresIn ?? 86400 : SECONDS[purpose]
+    const expiresIn = SECONDS[purpose]
     const { data, error } = await auth.supabase.storage
         .from(DOCUMENTS_BUCKET)
         .createSignedUrl(row.file_path, expiresIn, purpose === "preview" ? undefined : { download: row.file_name })

@@ -99,11 +99,38 @@ export const documentCreateSchema = z.object({
     category: z.enum(DOCUMENT_GROUPS).default("other"),
 }).strict()
 
-export const SHARE_DURATIONS = [3600, 86400] as const
 export const documentLinkSchema = z.object({
-    purpose: z.enum(["preview", "download", "share"]),
-    expiresIn: z.union([z.literal(3600), z.literal(86400)]).optional(),
+    purpose: z.enum(["preview", "download"]),
 }).strict()
+
+// Share link time limits, in seconds. null = works until it's expired by hand.
+export const SHARE_EXPIRY_OPTIONS = [
+    { seconds: null, label: "No expiry" },
+    { seconds: 3600, label: "1 hour" },
+    { seconds: 86400, label: "24 hours" },
+    { seconds: 604800, label: "7 days" },
+    { seconds: 2592000, label: "30 days" },
+    { seconds: 7776000, label: "90 days" },
+] as const
+
+export const documentShareCreateSchema = z.object({
+    label: z.string().trim().max(80, "Max 80 characters").nullish().transform(value => value || null),
+    expires_in: z.union([z.null(), z.literal(3600), z.literal(86400), z.literal(604800), z.literal(2592000), z.literal(7776000)]),
+}).strict()
+
+export type DocumentShare = {
+    id: string
+    label: string | null
+    expires_at: string | null
+    revoked_at: string | null
+    open_count: number
+    last_opened_at: string | null
+    created_at: string
+}
+
+export function shareIsActive (share: Pick<DocumentShare, "expires_at" | "revoked_at">, now: number) {
+    return !share.revoked_at && (!share.expires_at || new Date(share.expires_at).getTime() > now)
+}
 
 export type DocumentRecord = DocumentDetails & {
     id: string
@@ -114,6 +141,8 @@ export type DocumentRecord = DocumentDetails & {
     updated_at: string
     // Signed thumbnail URL for image documents (1 hour), added by the list query.
     thumb_url?: string | null
+    // Share links that currently work, added by the list query.
+    active_links?: number
 }
 
 // ---------------------------------------------------------------------------

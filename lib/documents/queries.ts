@@ -1,6 +1,6 @@
 import "server-only"
 import type { SupabaseClient } from "@supabase/supabase-js"
-import { IMAGE_FORMATS, type DocumentRecord } from "@/lib/documents/schema"
+import { IMAGE_FORMATS, shareIsActive, type DocumentRecord } from "@/lib/documents/schema"
 import type { DocumentSample } from "@/lib/documents/sniff"
 
 export const DOCUMENTS_BUCKET = "documents"
@@ -33,7 +33,15 @@ export async function listDocuments (supabase: SupabaseClient): Promise<Document
         if (signError) console.error("[documents] thumbnail signing failed:", signError.message)
         for (const entry of signed ?? []) if (entry.path && entry.signedUrl) thumbs.set(entry.path, entry.signedUrl)
     }
-    return rows.map(row => toRecord(row, thumbs.get(row.file_path) ?? null))
+
+    // A failure here only hides the "Live link" badges; the archive still loads.
+    const activeLinks = new Map<string, number>()
+    const { data: shares, error: shareError } = await supabase.from("document_shares").select("document_id, expires_at, revoked_at").is("revoked_at", null)
+    if (shareError) console.error("[documents] share count failed:", shareError.message)
+    const now = Date.now()
+    for (const share of shares ?? []) if (shareIsActive(share, now)) activeLinks.set(share.document_id, (activeLinks.get(share.document_id) ?? 0) + 1)
+
+    return rows.map(row => ({ ...toRecord(row, thumbs.get(row.file_path) ?? null), active_links: activeLinks.get(row.id) ?? 0 }))
 }
 
 export async function getDocumentRow (supabase: SupabaseClient, id: string): Promise<Row | null> {

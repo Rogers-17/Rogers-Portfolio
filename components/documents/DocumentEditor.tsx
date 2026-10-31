@@ -59,7 +59,7 @@ export default function DocumentEditor ({ document: doc, onClose, onSaved }: Pro
             return notify(result.error.message, "error")
         }
         notify("Details saved.")
-        onSaved({ ...result.data, thumb_url: doc.thumb_url })
+        onSaved({ ...result.data, thumb_url: doc.thumb_url, active_links: doc.active_links })
         onClose()
     }
 

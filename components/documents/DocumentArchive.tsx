@@ -8,6 +8,7 @@ import { useToast } from "@/components/admin/Toast"
 import DocumentEditor from "@/components/documents/DocumentEditor"
 import DocumentList, { type DocumentAction } from "@/components/documents/DocumentList"
 import DocumentPreview from "@/components/documents/DocumentPreview"
+import DocumentShareDialog from "@/components/documents/DocumentShareDialog"
 import { UploadQueue, useDocumentUploads } from "@/components/documents/DocumentUploader"
 import { adminFetch } from "@/lib/admin/client"
 import {
@@ -52,12 +53,13 @@ function filterToQuery (filter: DocumentFilter) {
 
 export default function DocumentArchive ({ initialDocuments, initialFilter, today }: Props) {
     const { notify } = useToast()
-    const { confirm, prompt } = useDialog()
+    const { confirm } = useDialog()
     const [documents, setDocuments] = React.useState(initialDocuments)
     const [filter, setFilter] = React.useState(initialFilter)
     const [view, setView] = React.useState<"list" | "grid">("list")
     const [editing, setEditing] = React.useState<DocumentRecord | null>(null)
     const [previewing, setPreviewing] = React.useState<DocumentRecord | null>(null)
+    const [sharing, setSharing] = React.useState<DocumentRecord | null>(null)
     const [dragging, setDragging] = React.useState(false)
     const fileInputRef = React.useRef<HTMLInputElement>(null)
 
@@ -140,37 +142,19 @@ export default function DocumentArchive ({ initialDocuments, initialFilter, toda
 
     const replace = (document: DocumentRecord) => setDocuments(current => current.map(entry => (entry.id === document.id ? document : entry)))
 
-    async function signedLink (document: DocumentRecord, purpose: "download" | "share", expiresIn?: 3600 | 86400) {
-        const result = await adminFetch<{ url: string, expiresAt: string }>(`/api/admin/documents/${document.id}/link`, { json: { purpose, expiresIn } })
-        if (!result.ok) {
-            notify(result.error.message, "error")
-            return null
-        }
-        return result.data
-    }
+    const onLinksChanged = React.useCallback((id: string, activeLinks: number) => {
+        setDocuments(current => current.map(entry => (entry.id === id ? { ...entry, active_links: activeLinks } : entry)))
+    }, [])
 
     async function download (document: DocumentRecord) {
-        const link = await signedLink(document, "download")
-        if (!link) return
+        const result = await adminFetch<{ url: string }>(`/api/admin/documents/${document.id}/link`, { json: { purpose: "download" } })
+        if (!result.ok) return notify(result.error.message, "error")
         const anchor = window.document.createElement("a")
-        anchor.href = link.url
+        anchor.href = result.data.url
         anchor.rel = "noopener"
         window.document.body.append(anchor)
         anchor.click()
         anchor.remove()
-    }
-
-    async function share (document: DocumentRecord, expiresIn: 3600 | 86400) {
-        const link = await signedLink(document, "share", expiresIn)
-        if (!link) return
-        const until = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(link.expiresAt))
-        try {
-            await navigator.clipboard.writeText(link.url)
-            notify(`Link copied. It works until ${until} and can't be revoked before then.`)
-        } catch {
-            // Clipboard can be blocked after an await; show the link to copy by hand.
-            await prompt({ title: "Copy this link", message: `It works until ${until} and can't be revoked before then.`, label: "Temporary link", defaultValue: link.url, confirmLabel: "Done", required: false })
-        }
     }
 
     async function toggleFavorite (document: DocumentRecord) {
@@ -211,8 +195,7 @@ export default function DocumentArchive ({ initialDocuments, initialFilter, toda
         switch (action) {
             case "preview": return setPreviewing(document)
             case "download": return void download(document)
-            case "share-1h": return void share(document, 3600)
-            case "share-24h": return void share(document, 86400)
+            case "share": return setSharing(document)
             case "edit": return setEditing(document)
             case "favorite": return void toggleFavorite(document)
             case "delete": return void remove(document)
@@ -287,7 +270,7 @@ export default function DocumentArchive ({ initialDocuments, initialFilter, toda
                         </div>
                     </div>
 
-                    <div className="-mx-4 mb-5 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] md:mx-0 md:flex-wrap md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden" role="group" aria-label="Filter by group">
+                    <div className="-mx-4 mb-5 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-none md:mx-0 md:flex-wrap md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden" role="group" aria-label="Filter by group">
                         <button type="button" aria-pressed={!filter.group && !filter.favorites && !filter.expiring} onClick={() => setFilter(current => ({ ...current, group: null, favorites: false, expiring: false }))} className={chip(!filter.group && !filter.favorites && !filter.expiring)}>
                             All {count(documents.length)}
                         </button>
@@ -332,6 +315,7 @@ export default function DocumentArchive ({ initialDocuments, initialFilter, toda
 
             {editing && <DocumentEditor key={editing.id} document={editing} onClose={() => setEditing(null)} onSaved={replace} />}
             {previewing && <DocumentPreview key={previewing.id} document={previewing} onClose={() => setPreviewing(null)} onDownload={download} />}
+            {sharing && <DocumentShareDialog key={sharing.id} document={sharing} onClose={() => setSharing(null)} onLinksChanged={onLinksChanged} />}
         </>
     )
 }

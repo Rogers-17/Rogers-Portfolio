@@ -5,7 +5,7 @@ import { LuDownload, LuEye, LuLink, LuEllipsis, LuPencil, LuStar, LuTrash2 } fro
 import FileTypeIcon from "@/components/documents/FileTypeIcon"
 import { DOCUMENT_GROUP_INFO, PREVIEWABLE, expiryState, formatBytes, type DocumentRecord } from "@/lib/documents/schema"
 
-export type DocumentAction = "preview" | "download" | "share-1h" | "share-24h" | "edit" | "favorite" | "delete"
+export type DocumentAction = "preview" | "download" | "share" | "edit" | "favorite" | "delete"
 
 type ListProps = {
     documents: DocumentRecord[]
@@ -88,9 +88,15 @@ function GridCard ({ document, today, onAction }: { document: DocumentRecord, to
 function Meta ({ document, today, compact = false }: { document: DocumentRecord, today: string, compact?: boolean }) {
     const expiry = expiryState(document.expires_on, today)
     const tags = compact ? document.tags.slice(0, 2) : document.tags.slice(0, 4)
+    const activeLinks = document.active_links ?? 0
     return (
         <>
             <span className="rounded-full bg-accent-1/10 px-2 py-0.5 text-[11px] font-semibold text-accent-1">{DOCUMENT_GROUP_INFO[document.category].label}</span>
+            {activeLinks > 0 && (
+                <span className="rounded-full bg-emerald-400/15 px-2 py-0.5 text-[11px] font-semibold text-emerald-200" title="Anyone with the link can download this file">
+                    {activeLinks === 1 ? "Live link" : `${activeLinks} live links`}
+                </span>
+            )}
             {expiry && (
                 <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${expiry === "expired" ? "bg-rose-500/15 text-rose-200" : "bg-amber-400/15 text-amber-100"}`} title={document.expires_on ? `Expires ${formatDate(document.expires_on)}` : undefined}>
                     {expiry === "expired" ? "Expired" : "Expires soon"}
@@ -182,10 +188,7 @@ function ActionsMenu ({ document, onAction }: { document: DocumentRecord, onActi
                             <button type="button" role="menuitem" onClick={() => run("preview")} className={item}><LuEye aria-hidden="true" className="text-muted" /> Preview</button>
                         )}
                         <button type="button" role="menuitem" onClick={() => run("download")} className={item}><LuDownload aria-hidden="true" className="text-muted" /> Download</button>
-                        <div className="my-1 border-t border-white/8" role="separator" />
-                        <p className="px-3 pt-1 pb-0.5 text-[11px] font-semibold tracking-wider text-dim uppercase">Copy temporary link</p>
-                        <button type="button" role="menuitem" onClick={() => run("share-1h")} className={item}><LuLink aria-hidden="true" className="text-muted" /> Valid for 1 hour</button>
-                        <button type="button" role="menuitem" onClick={() => run("share-24h")} className={item}><LuLink aria-hidden="true" className="text-muted" /> Valid for 24 hours</button>
+                        <button type="button" role="menuitem" onClick={() => run("share")} className={item}><LuLink aria-hidden="true" className="text-muted" /> Share link</button>
                         <div className="my-1 border-t border-white/8" role="separator" />
                         <button type="button" role="menuitem" onClick={() => run("edit")} className={item}><LuPencil aria-hidden="true" className="text-muted" /> Edit details</button>
                         <button type="button" role="menuitem" onClick={() => run("delete")} className={`${item} text-rose-300 hover:bg-rose-500/10`}><LuTrash2 aria-hidden="true" /> Delete</button>
