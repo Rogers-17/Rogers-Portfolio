@@ -124,6 +124,7 @@ export type DocumentShare = {
     expires_at: string | null
     revoked_at: string | null
     open_count: number
+    download_count: number
     last_opened_at: string | null
     created_at: string
 }

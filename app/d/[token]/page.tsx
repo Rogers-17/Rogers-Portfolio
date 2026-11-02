@@ -1,12 +1,13 @@
 import type { Metadata } from "next"
 import { headers } from "next/headers"
-import { redirect } from "next/navigation"
+import SharedDocumentView from "@/components/documents/SharedDocumentView"
 import LinkUnavailable from "@/components/share/LinkUnavailable"
 import { resolveDocumentShare } from "@/lib/documents/shares"
 import { hashIpFromHeaders } from "@/lib/project-request/rate-limit"
 
-// Public, login-free share link for a private document. A valid link redirects to a 60-second
-// download URL; invalid, expired and deleted links all look the same. Never indexed.
+// Public, login-free page for a shared document: it shows the file, and downloading is an
+// optional button (./download). Invalid, expired and deleted links all look the same. The
+// title stays generic so chat-app link previews don't reveal the document. Never indexed.
 
 type Props = { params: Promise<{ token: string }> }
 
@@ -18,10 +19,19 @@ export const metadata: Metadata = {
 
 export default async function SharedDocumentPage ({ params }: Props) {
     const { token } = await params
-    const result = await resolveDocumentShare(token, hashIpFromHeaders(await headers()))
+    const result = await resolveDocumentShare(token, hashIpFromHeaders(await headers()), "view")
 
     if (result === "rate_limited") return <LinkUnavailable message="Too many requests from your network. Please try again in an hour." />
     if (!result) return <LinkUnavailable message="This link has expired or been turned off. Ask the sender for a new one." />
 
-    redirect(result)
+    return (
+        <SharedDocumentView
+            title={result.title}
+            fileName={result.fileName}
+            format={result.format}
+            size={result.size}
+            url={result.url}
+            downloadHref={`/d/${token.toLowerCase()}/download`}
+        />
+    )
 }

@@ -183,7 +183,7 @@ export default function DocumentShareDialog ({ document: doc, onClose, onLinksCh
                                         <div className={`min-w-0 flex-1 basis-40 ${active ? "" : "opacity-60"}`}>
                                             <p className="truncate text-sm font-semibold">{share.label || "Untitled link"}</p>
                                             <p className="text-xs text-muted">
-                                                {statusLabel(share, now)} · {plural(share.open_count, "open")}
+                                                {statusLabel(share, now)} · {plural(share.open_count, "view")} · {plural(share.download_count, "download")}
                                                 {share.last_opened_at ? ` · last opened ${relativeTime(share.last_opened_at, now)}` : ""}
                                             </p>
                                         </div>
