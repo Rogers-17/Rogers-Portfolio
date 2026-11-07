@@ -5,19 +5,32 @@ import PostCard from "@/components/blog/PostCard"
 import Badge from "@/components/ui/Badge"
 import { getBlogPage, getPublishedPosts } from "@/lib/blog/queries"
 import LetsWorkCTA from "@/sections/LetsWorkCTA"
-
-export const metadata: Metadata = {
-    title: "Blog | Rogers Portfolio",
-    description: "Thoughts, ideas and lessons on design, code and building products.",
-}
+import { pageMetadata } from "@/lib/seo"
 
 type Props = { searchParams: Promise<{ page?: string }> }
+
+const DESCRIPTION = "Articles by Mohammed N. Rogers on software engineering, full-stack web development and building digital products."
+
+// Same rule the page uses; anything invalid is treated as page 1.
+function parsePageNumber (value: string | undefined) {
+    const raw = Number(value ?? 1)
+    return Number.isInteger(raw) && raw > 0 && raw < 1000 ? raw : 1
+}
+
+// Page 1 (and invalid values) canonicalise to /blog; later pages are self-canonical.
+export async function generateMetadata ({ searchParams }: Props): Promise<Metadata> {
+    const pageNumber = parsePageNumber((await searchParams).page)
+    return pageMetadata({
+        title: pageNumber > 1 ? `Blog (page ${pageNumber})` : "Blog",
+        description: pageNumber > 1 ? `${DESCRIPTION} Page ${pageNumber}.` : DESCRIPTION,
+        path: pageNumber > 1 ? `/blog?page=${pageNumber}` : "/blog",
+    })
+}
 
 const container = "mx-auto w-full px-5 sm:max-w-(--breakpoint-sm) md:max-w-(--breakpoint-md) lg:max-w-(--breakpoint-lg) lg:px-20"
 
 export default async function BlogPage ({ searchParams }: Props) {
-    const rawPage = Number((await searchParams).page ?? 1)
-    const pageNumber = Number.isInteger(rawPage) && rawPage > 0 && rawPage < 1000 ? rawPage : 1
+    const pageNumber = parsePageNumber((await searchParams).page)
     const [page, { posts, hasMore }] = await Promise.all([getBlogPage(), getPublishedPosts(pageNumber)])
 
     return (

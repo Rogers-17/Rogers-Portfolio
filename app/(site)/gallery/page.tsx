@@ -7,11 +7,13 @@ import Badge from "@/components/ui/Badge"
 import Paragraphs from "@/components/ui/Paragraphs"
 import { getGalleryContent } from "@/lib/pages/queries"
 import LetsWorkCTA from "@/sections/LetsWorkCTA"
+import { pageMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
-    title: "Gallery | Rogers Portfolio",
-    description: "Moments, places and people from behind the builds.",
-}
+export const metadata: Metadata = pageMetadata({
+    title: "Gallery",
+    description: "Photos from Mohammed N. Rogers: moments, places and people from behind the builds.",
+    path: "/gallery",
+})
 
 const container = "mx-auto w-full px-5 sm:max-w-(--breakpoint-sm) md:max-w-(--breakpoint-md) lg:max-w-(--breakpoint-lg) lg:px-20"
 
@@ -46,7 +48,7 @@ export default async function GalleryPage () {
                     </blockquote>
                 </div>
                 <div className="lg:col-span-6">
-                    <TornImage src={page.heroUrl ?? Portrait} alt={page.hero_alt} priority />
+                    <TornImage src={page.heroUrl ?? Portrait} alt={page.hero_alt} eager />
                 </div>
             </section>
 

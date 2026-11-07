@@ -93,3 +93,14 @@ export async function getProjectBySlug (slug: string): Promise<ProjectWithNeighb
         next: all[(index + 1) % all.length],
     }
 }
+
+// Published projects for app/sitemap.ts.
+export async function getSitemapProjects (): Promise<{ slug: string, updated_at: string }[]> {
+    const { data, error } = await createServerSupabase()
+        .from("projects")
+        .select("slug, updated_at")
+        .eq("is_published", true)
+
+    if (error) throw new Error(`Failed to load sitemap projects: ${error.message}`)
+    return z.array(z.object({ slug: z.string(), updated_at: z.string() })).parse(data)
+}

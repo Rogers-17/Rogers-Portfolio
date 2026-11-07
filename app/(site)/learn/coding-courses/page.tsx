@@ -3,11 +3,16 @@ import { LuGraduationCap } from "react-icons/lu"
 import ComingSoon from "@/components/ui/ComingSoon"
 import PageHeader from "@/components/ui/PageHeader"
 import LetsWorkCTA from "@/sections/LetsWorkCTA"
+import { pageMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
-    title: "Coding Courses | Rogers Portfolio",
-    description: "Coding courses from Rogers. Launching soon.",
-}
+// "Coming soon" placeholder: kept out of search (and out of app/sitemap.ts) until the
+// courses launch. When they do, remove `robots` here and add the route to the sitemap.
+export const metadata: Metadata = pageMetadata({
+    title: "Coding Courses",
+    description: "Project-based coding courses from Mohammed N. Rogers. Launching soon.",
+    path: "/learn/coding-courses",
+    robots: { index: false, follow: true },
+})
 
 export default function CodingCoursesPage () {
     return (

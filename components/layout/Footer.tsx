@@ -1,12 +1,11 @@
 import Link from "next/link";
-import { FaGithub, FaLinkedinIn, FaXTwitter, FaDribbble, FaArrowRight } from "react-icons/fa6";
+import type { IconType } from "react-icons";
+import { FaGithub, FaArrowRight } from "react-icons/fa6";
+import { site } from "@/lib/site";
 
-const socials = [
-    { name: "GitHub", href: "#", Icon: FaGithub },
-    { name: "LinkedIn", href: "#", Icon: FaLinkedinIn },
-    { name: "X", href: "#", Icon: FaXTwitter },
-    { name: "Dribbble", href: "#", Icon: FaDribbble },
-]
+// Verified public profiles only (lib/site.ts). Add an icon here when a profile is added there.
+const SOCIAL_ICONS: Record<string, IconType> = { GitHub: FaGithub }
+const socials = site.socials.map(social => ({ ...social, Icon: SOCIAL_ICONS[social.name] ?? FaArrowRight }))
 
 const navigate = [
     { label: "Home", href: "/" },
@@ -39,7 +38,9 @@ export default function Footer () {
                                 <a
                                     key={name}
                                     href={href}
-                                    aria-label={name}
+                                    target="_blank"
+                                    rel="me noopener noreferrer"
+                                    aria-label={`${name} (opens in a new tab)`}
                                     className="grid h-10 w-10 place-items-center rounded-full border border-white/6 bg-white/4
                                     text-sm text-muted transition-all duration-300
                                     ease-[cubic-bezier(0.68,-0.55,0.265,1.55)]
@@ -91,7 +92,7 @@ export default function Footer () {
 
                 <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-white/6 pt-6 text-xs text-dim sm:flex-row">
                     <p>&copy; {new Date().getFullYear()} Rogers. All rights reserved.</p>
-                    <p>Designed &amp; built with <span className="bg-linear-65/srgb from-accent-1 to-accent-2 bg-clip-text text-transparent font-semibold">passion</span> in Nigeria.</p>
+                    <p>Designed &amp; built with <span className="bg-linear-65/srgb from-accent-1 to-accent-2 bg-clip-text text-transparent font-semibold">passion</span> in Liberia.</p>
                 </div>
             </div>
         </footer>

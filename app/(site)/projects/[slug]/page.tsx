@@ -13,6 +13,8 @@ import StatusBadge from "@/components/projects/StatusBadge"
 import TechGrid from "@/components/projects/TechGrid"
 import { getProjectBySlug, getPublishedProjectSlugs } from "@/lib/projects/queries"
 import { slugSchema, type ProjectCard } from "@/lib/projects/schema"
+import JsonLd from "@/components/seo/JsonLd"
+import { breadcrumbJsonLd, creativeWorkJsonLd, pageMetadata } from "@/lib/seo"
 
 export const revalidate = 60
 
@@ -33,17 +35,22 @@ async function loadProject (params: Props["params"]) {
     return result
 }
 
+// "Name — Tagline" when it fits a search result title, otherwise just the name.
+function projectTitle (project: { name: string, tagline: string }) {
+    const full = `${project.name} — ${project.tagline}`
+    return full.length <= 60 ? full : project.name
+}
+
 export async function generateMetadata ({ params }: Props): Promise<Metadata> {
     const { project } = await loadProject(params)
-    return {
-        title: `${project.name} | Rogers Portfolio`,
+    return pageMetadata({
+        title: projectTitle(project),
         description: project.summary,
-        openGraph: {
-            title: `${project.name} — ${project.tagline}`,
-            description: project.summary,
-            images: project.coverImageUrl ? [{ url: project.coverImageUrl, alt: project.coverImageAlt }] : undefined,
-        },
-    }
+        path: `/projects/${project.slug}`,
+        image: project.coverImageUrl
+            ? { url: project.coverImageUrl, alt: project.coverImageAlt }
+            : project.gallery[0] ? { url: project.gallery[0].url, alt: project.gallery[0].alt } : null,
+    })
 }
 
 const proseClass = "text-base leading-[1.9] text-muted"
@@ -60,8 +67,22 @@ export default async function ProjectDetailPage ({ params }: Props) {
 
     const hasTechSection = Boolean(project.techIntro || project.techBreakdown.length || project.technologies.length)
 
+    const path = `/projects/${project.slug}`
+
     return (
         <>
+            <JsonLd nodes={[
+                creativeWorkJsonLd({
+                    path,
+                    name: project.name,
+                    description: project.summary,
+                    year: project.year,
+                    imageUrl: project.coverImageUrl ?? project.gallery[0]?.url ?? null,
+                    keywords: project.technologies.map(tech => tech.name),
+                    websiteUrl: project.websiteUrl,
+                }),
+                breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Projects", path: "/projects" }, { name: project.name, path }]),
+            ]} />
             <main className="mx-auto w-full px-5 sm:max-w-(--breakpoint-sm) md:max-w-(--breakpoint-md) lg:max-w-(--breakpoint-lg) lg:px-20 pt-10">
                 <Link href="/projects" className="inline-flex items-center gap-2 text-sm text-muted transition-colors duration-300 hover:text-white">
                     <FiChevronLeft aria-hidden="true" />
@@ -94,7 +115,8 @@ export default async function ProjectDetailPage ({ params }: Props) {
                             src={project.coverImageUrl}
                             alt={project.coverImageAlt}
                             fill
-                            priority
+                            loading="eager"
+                            fetchPriority="high"
                             sizes="(min-width: 1200px) 1040px, 100vw"
                             className="object-cover"
                         />

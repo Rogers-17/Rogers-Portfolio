@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFonts from "next/font/local"
 import "./globals.css";
+import { DEFAULT_OG_IMAGE, SITE_URL, isIndexable, site } from "@/lib/site";
 
 const atydisplay = localFonts({
   src:[
@@ -23,9 +24,34 @@ const atydisplay = localFonts({
   variable: "--font-atydisplay",
 })
 
+// Site-wide defaults. Each public page sets its own canonical (never here, or pages that
+// forget one would inherit the homepage canonical) via pageMetadata() in lib/seo.ts.
 export const metadata: Metadata = {
-  title: "Rogers Portfolio",
-  description: "This is a portfolio site built for Mohammed N. Rogers",
+  metadataBase: new URL(SITE_URL),
+  title: { default: site.title, template: `%s | ${site.name}` },
+  description: site.description,
+  applicationName: site.name,
+  authors: [{ name: site.name, url: SITE_URL }],
+  creator: site.name,
+  publisher: site.name,
+  formatDetection: { email: false, address: false, telephone: false },
+  openGraph: {
+    type: "website",
+    siteName: site.name,
+    locale: site.locale,
+    title: site.title,
+    description: site.description,
+    images: [DEFAULT_OG_IMAGE],
+  },
+  twitter: { card: "summary_large_image", title: site.title, description: site.description, images: [DEFAULT_OG_IMAGE.url] },
+  // Only Vercel Production is indexable; previews and local builds are always noindex.
+  robots: isIndexable
+    ? { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } }
+    : { index: false, follow: false, googleBot: { index: false, follow: false } },
+};
+
+export const viewport: Viewport = {
+  themeColor: site.themeColor,
 };
 
 export default function RootLayout({

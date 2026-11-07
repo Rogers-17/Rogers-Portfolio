@@ -28,7 +28,7 @@ function tornPath (): string {
 const PATH = tornPath()
 const CLIP_ID = "torn-edge-clip"
 
-export default function TornImage ({ src, alt, priority }: { src: string | StaticImageData, alt: string, priority?: boolean }) {
+export default function TornImage ({ src, alt, eager }: { src: string | StaticImageData, alt: string, eager?: boolean }) {
     return (
         <div className="relative mx-auto w-full max-w-116">
             <svg width="0" height="0" className="absolute" aria-hidden="true" focusable="false">
@@ -38,7 +38,7 @@ export default function TornImage ({ src, alt, priority }: { src: string | Stati
             </svg>
             <div className="pointer-events-none absolute inset-[8%] rounded-full bg-accent-2/25 blur-[70px]" aria-hidden="true" />
             <div className="relative aspect-4/3 bg-[#1a1030]" style={{ clipPath: `url(#${CLIP_ID})` }}>
-                <Image src={src} alt={alt} fill priority={priority} sizes="(min-width: 1200px) 464px, 90vw" className="object-cover object-top" />
+                <Image src={src} alt={alt} fill loading={eager ? "eager" : undefined} sizes="(min-width: 1200px) 464px, 90vw" className="object-cover object-top" />
             </div>
         </div>
     )

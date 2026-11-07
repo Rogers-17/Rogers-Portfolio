@@ -8,11 +8,13 @@ import Badge from "@/components/ui/Badge"
 import Paragraphs from "@/components/ui/Paragraphs"
 import { getAboutContent } from "@/lib/pages/queries"
 import LetsWorkCTA from "@/sections/LetsWorkCTA"
+import JsonLd from "@/components/seo/JsonLd"
+import { breadcrumbJsonLd, pageMetadata, profilePageJsonLd } from "@/lib/seo"
+import { absoluteUrl } from "@/lib/site"
 
-export const metadata: Metadata = {
-    title: "About | Rogers Portfolio",
-    description: "Get to know Rogers: full-stack designer harnessing AI, design, and code for startups and financial institutions.",
-}
+const DESCRIPTION = "About Mohammed N. Rogers, a full-stack software engineer based in Liberia: background, journey and approach to building web products."
+
+export const metadata: Metadata = pageMetadata({ title: "About", description: DESCRIPTION, path: "/about" })
 
 const container = "mx-auto w-full px-5 sm:max-w-(--breakpoint-sm) md:max-w-(--breakpoint-md) lg:max-w-(--breakpoint-lg) lg:px-20"
 const gradientText = "bg-linear-65/srgb from-accent-1 to-accent-2 bg-clip-text text-transparent"
@@ -22,6 +24,10 @@ export default async function AboutPage () {
 
     return (
         <main className="bg-surface">
+            <JsonLd nodes={[
+                profilePageJsonLd({ path: "/about", name: "About Mohammed N. Rogers", description: DESCRIPTION, imageUrl: page.photoPrimaryUrl ?? absoluteUrl(Portrait.src) }),
+                breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "About", path: "/about" }]),
+            ]} />
             {/* Hero */}
             <section className="relative overflow-hidden">
                 <div className="pointer-events-none absolute top-0 right-0 h-full w-full bg-[radial-gradient(45%_60%_at_78%_45%,rgba(117,28,255,0.22),transparent_70%)] lg:w-3/4" aria-hidden="true" />

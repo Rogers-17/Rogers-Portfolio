@@ -11,7 +11,11 @@ import { createAnonSupabase } from "@/lib/supabase/server"
 type Props = { params: Promise<{ token: string }> }
 
 export const metadata: Metadata = {
-    title: "Shared resume",
+    title: { absolute: "Shared resume" },
+    // Opt out of the site-wide description / social card from app/layout.tsx so link previews stay generic.
+    description: null,
+    openGraph: null,
+    twitter: null,
     robots: { index: false, follow: false, nocache: true, googleBot: { index: false, follow: false, noimageindex: true } },
     referrer: "no-referrer",
 }

@@ -2,8 +2,12 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { LuArrowLeft, LuArrowUpRight } from "react-icons/lu"
+import PostCard from "@/components/blog/PostCard"
 import RichText from "@/components/blog/RichText"
-import { getBlogPage, getPublishedPost, getPublishedSlugs } from "@/lib/blog/queries"
+import JsonLd from "@/components/seo/JsonLd"
+import { getBlogPage, getPublishedPost, getPublishedSlugs, getRecentPosts } from "@/lib/blog/queries"
+import { blogPostingJsonLd, breadcrumbJsonLd, pageMetadata, safeCanonical } from "@/lib/seo"
+import { absoluteUrl } from "@/lib/site"
 import { formatPostDate, readTimeLabel } from "@/lib/blog/schema"
 import { SLUG_PATTERN } from "@/lib/projects/shared"
 import LetsWorkCTA from "@/sections/LetsWorkCTA"
@@ -18,24 +22,29 @@ async function loadPost (slug: string) {
     return SLUG_PATTERN.test(slug) ? getPublishedPost(slug) : null
 }
 
+// The dashboard's canonical URL is used only when it is a well-formed http(s) URL that
+// points somewhere other than this post; anything else falls back to the post's own URL.
+function postSeo (post: NonNullable<Awaited<ReturnType<typeof loadPost>>>) {
+    const path = `/blog/${post.slug}`
+    const canonical = safeCanonical(post.canonical_url)
+    const external = canonical !== null && canonical !== absoluteUrl(path) ? canonical : null
+    return { path, external, description: post.seo_description ?? post.summary }
+}
+
 export async function generateMetadata ({ params }: Props): Promise<Metadata> {
     const post = await loadPost((await params).slug)
-    if (!post) return { title: "Post not found | Rogers Portfolio" }
+    if (!post) return { title: "Post not found" }
 
-    const description = post.seo_description ?? post.summary ?? undefined
-    return {
-        title: `${post.title} | Rogers Portfolio`,
+    const { path, external, description } = postSeo(post)
+    return pageMetadata({
+        title: post.title,
         description,
-        alternates: post.canonical_url ? { canonical: post.canonical_url } : undefined,
-        openGraph: {
-            type: "article",
-            title: post.title,
-            description,
-            publishedTime: post.published_at,
-            modifiedTime: post.updated_at,
-            images: post.coverUrl ? [{ url: post.coverUrl }] : undefined,
-        },
-    }
+        path,
+        canonical: external ?? undefined,
+        image: post.coverUrl ? { url: post.coverUrl, alt: post.title } : null,
+        type: "article",
+        article: { publishedTime: post.published_at, modifiedTime: post.updated_at },
+    })
 }
 
 function hostOf (url: string) {
@@ -49,19 +58,8 @@ function hostOf (url: string) {
 export default async function BlogPostPage ({ params }: Props) {
     const post = await loadPost((await params).slug)
     if (!post) notFound()
-    const page = await getBlogPage()
-
-    // Structured data for search engines; "<" is escaped so the JSON can't close the script tag.
-    const jsonLd = JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "BlogPosting",
-        headline: post.title,
-        description: post.seo_description ?? post.summary,
-        datePublished: post.published_at,
-        dateModified: post.updated_at,
-        image: post.coverUrl ?? undefined,
-        author: { "@type": "Person", name: "Rogers" },
-    }).replace(/</g, "\\u003c")
+    const [page, related] = await Promise.all([getBlogPage(), getRecentPosts(post.slug, 3)])
+    const { path, external, description } = postSeo(post)
 
     return (
         <main className="bg-surface">
@@ -79,18 +77,30 @@ export default async function BlogPostPage ({ params }: Props) {
 
                 <RichText doc={post.content} className="mt-10" />
 
-                {post.canonical_url && (
+                {external && (
                     <p className="mt-12 border-t border-white/8 pt-6 text-sm text-muted">
                         Originally published on{" "}
-                        <a href={post.canonical_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold text-accent-1 hover:underline">
-                            {hostOf(post.canonical_url)}
+                        <a href={external} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold text-accent-1 hover:underline">
+                            {hostOf(external)}
                             <LuArrowUpRight className="size-3.5" aria-hidden="true" />
                         </a>
                     </p>
                 )}
             </article>
 
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
+            {related.length > 0 && (
+                <section className="mx-auto w-full px-5 pt-20 pb-4 sm:max-w-(--breakpoint-sm) md:max-w-(--breakpoint-md) lg:max-w-(--breakpoint-lg) lg:px-20" aria-labelledby="more-articles-heading">
+                    <h2 id="more-articles-heading" className="text-2xl font-bold md:text-3xl">More articles</h2>
+                    <div className="mt-8 grid items-start gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
+                        {related.map(item => <PostCard key={item.id} post={item} headingLevel="h3" />)}
+                    </div>
+                </section>
+            )}
+
+            <JsonLd nodes={[
+                blogPostingJsonLd({ path, title: post.title, description, publishedAt: post.published_at, modifiedAt: post.updated_at, imageUrl: post.coverUrl }),
+                breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Blog", path: "/blog" }, { name: post.title, path }]),
+            ]} />
             <LetsWorkCTA title={page.cta_title} label={page.cta_label} />
         </main>
     )

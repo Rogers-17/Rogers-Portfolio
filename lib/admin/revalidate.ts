@@ -11,6 +11,9 @@ export function revalidateProjects () {
     revalidatePath("/")
     revalidatePath("/projects")
     revalidatePath("/projects/[slug]", "page")
+    // revalidateTag is only documented to refresh *pages* using the tag, so the sitemap
+    // route handler is invalidated explicitly (publish, unpublish, edit, delete, reorder).
+    revalidatePath("/sitemap.xml")
 }
 
 export function revalidateTestimonials () {
@@ -42,4 +45,5 @@ export function revalidateBlog () {
     revalidateTag(BLOG_CACHE_TAG, { expire: 0 })
     revalidatePath("/blog")
     revalidatePath("/blog/[slug]", "page")
+    revalidatePath("/sitemap.xml")
 }

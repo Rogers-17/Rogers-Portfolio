@@ -1,4 +1,6 @@
+import { after } from "next/server"
 import { fail, ok, zodIssues } from "@/lib/admin/http"
+import { notifyNewProjectRequest } from "@/lib/project-request/notify"
 import { hashIp } from "@/lib/project-request/rate-limit"
 import { projectRequestBodySchema, projectRequestSchema } from "@/lib/project-request/schema"
 import { createAnonSupabase } from "@/lib/supabase/server"
@@ -53,5 +55,17 @@ export async function POST (request: Request) {
         return fail(500, "server_error", "Couldn't save your request. Please try again.")
     }
 
-    return ok({ id: data as string }, 201)
+    const id = data as string
+    const submission = parsed.data
+    // Runs after the 201 is sent (Vercel keeps the function alive via waitUntil). Fully
+    // caught: a failed or slow email can never change the visitor's successful response.
+    after(async () => {
+        try {
+            await notifyNewProjectRequest(submission, id)
+        } catch (error) {
+            console.error("[project-requests] notification failed:", error instanceof Error ? error.name : "unknown")
+        }
+    })
+
+    return ok({ id }, 201)
 }

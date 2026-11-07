@@ -37,8 +37,8 @@ export default function Hero () {
 
                 <motion.div className="relative z-1 mx-auto flex w-full max-w-[860px] items-center justify-center" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.22 }}>
                     <div className="relative mx-auto inline-flex w-[min(100%,560px)] max-w-[560px] items-center justify-center">
-                        <Image src={MainImage} className="z-2 block h-auto w-full rounded-[1.25rem] drop-shadow-[0_24px_64px_rgba(0,0,0,0.35)]" alt="Hero Image" width={840} height={840} />
-                        <Image src={OutLineImage} alt="Rogers - Full-stack Developer" className="pointer-events-none absolute inset-0 z-1 h-full w-full object-contain transform-gpu" width={880} height={880} />
+                        <Image src={MainImage} className="z-2 block h-auto w-full rounded-[1.25rem] drop-shadow-[0_24px_64px_rgba(0,0,0,0.35)]" alt="Portrait of Mohammed N. Rogers" width={840} height={840} preload />
+                        <Image src={OutLineImage} alt="" className="pointer-events-none absolute inset-0 z-1 h-full w-full object-contain transform-gpu" width={880} height={880} />
                         <div className="pointer-events-none absolute inset-0 z-3 before:absolute before:inset-0 before:opacity-25 before:content-[''] before:bg-[repeating-linear-gradient(rgba(255,255,255,0.08),rgba(255,255,255,0.08)_2px,transparent_2px,transparent_4px)]"></div>
                     </div>
                 </motion.div>
@@ -51,7 +51,7 @@ export default function Hero () {
                     Corporate Profile
                     </a>
                 </div>
-                <a href="start-a-project/" className="flex shrink-0 justify-center items-center gap-2 bg-purple-500 py-3 px-4 rounded-full w-full md:w-auto">
+                <a href="/start-a-project" className="flex shrink-0 justify-center items-center gap-2 bg-purple-500 py-3 px-4 rounded-full w-full md:w-auto">
                     <span className="font-semibold">LET&apos;S WORK</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 17 17" fill="none"><path d="M9.1497 0.80204C9.26529 3.95101 13.2299 6.51557 16.1451 8.0308L16.1447 9.43036C13.2285 10.7142 9.37889 13.1647 9.37789 16.1971L7.27855 16.1978C7.16304 12.8156 10.6627 10.4818 13.1122 9.66462L0.049716 9.43565L0.0504065 7.33631L13.1129 7.56528C10.5473 6.86634 6.93261 4.18504 7.05036 0.80273L9.1497 0.80204Z" fill="currentColor"/></svg>
                 </a>

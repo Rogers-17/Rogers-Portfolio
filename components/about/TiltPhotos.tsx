@@ -11,7 +11,7 @@ const MAX_TILT = 12
 
 // A photo that tilts towards the cursor in 3D (with a moving glare) and can be dragged;
 // it springs back to its resting spot on release. Tilt only reacts to a mouse.
-function TiltCard ({ photo, restRotate, className, sizes, priority }: { photo: Photo, restRotate: number, className: string, sizes: string, priority?: boolean }) {
+function TiltCard ({ photo, restRotate, className, sizes, eager }: { photo: Photo, restRotate: number, className: string, sizes: string, eager?: boolean }) {
     const reduceMotion = useReducedMotion()
     const pointerX = useMotionValue(0.5)
     const pointerY = useMotionValue(0.5)
@@ -50,7 +50,7 @@ function TiltCard ({ photo, restRotate, className, sizes, priority }: { photo: P
             onPointerLeave={reset}
         >
             <div className="relative size-full overflow-hidden rounded-2xl border border-white/10 bg-linear-65/srgb from-[#2a1147] to-[#120822] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.75),0_0_40px_-10px_rgba(117,28,255,0.45)]">
-                <Image src={photo.src} alt={photo.alt} fill sizes={sizes} priority={priority} draggable={false} className="pointer-events-none object-cover object-top" />
+                <Image src={photo.src} alt={photo.alt} fill sizes={sizes} loading={eager ? "eager" : undefined} draggable={false} className="pointer-events-none object-cover object-top" />
                 <motion.div className="pointer-events-none absolute inset-0 transition-opacity duration-300" style={{ backgroundImage: glare, opacity: hovering ? 1 : 0 }} aria-hidden="true" />
             </div>
         </motion.div>
@@ -61,7 +61,7 @@ export default function TiltPhotos ({ primary, secondary }: { primary: Photo, se
     return (
         <div className="relative mx-auto aspect-10/9 w-full max-w-84 md:max-w-104 lg:max-w-none">
             <div className="pointer-events-none absolute inset-[10%] rounded-full bg-accent-2/35 blur-[80px]" aria-hidden="true" />
-            <TiltCard photo={primary} restRotate={-6} className="top-0 right-[2%] z-10 aspect-7/6 w-[68%]" sizes="(min-width: 1200px) 300px, 60vw" priority />
+            <TiltCard photo={primary} restRotate={-6} className="top-0 right-[2%] z-10 aspect-7/6 w-[68%]" sizes="(min-width: 1200px) 300px, 60vw" eager />
             <TiltCard photo={secondary} restRotate={5} className="bottom-0 left-[4%] z-20 aspect-12/11 w-[56%]" sizes="(min-width: 1200px) 250px, 50vw" />
         </div>
     )

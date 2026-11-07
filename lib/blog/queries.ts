@@ -71,3 +71,34 @@ export async function getPublishedSlugs (): Promise<string[]> {
     }
     return z.array(z.object({ slug: z.string() })).parse(data).map(row => row.slug)
 }
+
+// Up to `limit` newest published posts other than `excludeSlug` (related links under a post).
+export const getRecentPosts = cache(async (excludeSlug: string, limit = 3): Promise<PostCard[]> => {
+    const { data, error } = await createServerSupabase(BLOG_CACHE_TAG)
+        .from("blog_posts")
+        .select(POST_CARD_COLUMNS)
+        .neq("slug", excludeSlug)
+        .order("published_at", { ascending: false })
+        .limit(limit)
+
+    if (error) {
+        handle(error, "recent blog posts")
+        return []
+    }
+    return z.array(postCardSchema).parse(data)
+})
+
+// Published posts for app/sitemap.ts (RLS hides drafts and scheduled posts).
+export async function getSitemapPosts (): Promise<{ slug: string, updated_at: string, canonical_url: string | null }[]> {
+    const { data, error } = await createServerSupabase(BLOG_CACHE_TAG)
+        .from("blog_posts")
+        .select("slug, updated_at, canonical_url")
+        .order("published_at", { ascending: false })
+        .limit(1000)
+
+    if (error) {
+        handle(error, "sitemap blog posts")
+        return []
+    }
+    return z.array(z.object({ slug: z.string(), updated_at: z.string(), canonical_url: z.string().nullable() })).parse(data)
+}

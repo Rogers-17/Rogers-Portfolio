@@ -1,11 +1,13 @@
 import type { Metadata } from "next"
 import ProjectWizard from "@/components/start-project/ProjectWizard"
 import { getProjectFormSettings } from "@/lib/pages/queries"
+import { pageMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = {
-    title: "Start a Project | Rogers Portfolio",
-    description: "Tell Rogers about your project in a few quick steps, then send it via WhatsApp, email, or request a call.",
-}
+export const metadata: Metadata = pageMetadata({
+    title: "Start a Project",
+    description: "Tell Mohammed N. Rogers about your project in a few quick steps, then send it via WhatsApp, email, or request a call.",
+    path: "/start-a-project",
+})
 
 export default async function StartAProjectPage () {
     const settings = await getProjectFormSettings()

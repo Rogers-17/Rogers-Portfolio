@@ -1,7 +1,11 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-    title: "Admin | Rogers Portfolio",
+    // "%s" stops the public "| Mohammed N. Rogers" template from reaching admin page titles.
+    title: { absolute: "Admin | Rogers Portfolio", template: "%s" },
+    description: null,
+    openGraph: null,
+    twitter: null,
     robots: { index: false, follow: false },
 }
 
