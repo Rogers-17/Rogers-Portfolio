@@ -40,6 +40,7 @@ export function pageMetadata (input: PageMetaInput): Metadata {
         },
         twitter: {
             card: "summary_large_image",
+            creator: site.xHandle,
             title: socialTitle,
             description: input.description,
             images: images.map(image => image.url),
@@ -85,7 +86,7 @@ export function personJsonLd (imageUrl?: string) {
         url: absoluteUrl("/"),
         jobTitle: site.jobTitle,
         ...(imageUrl ? { image: imageUrl } : {}),
-        address: { "@type": "PostalAddress", addressCountry: site.countryCode },
+        address: { "@type": "PostalAddress", addressLocality: site.city, addressCountry: site.countryCode },
         knowsAbout: [...site.knowsAbout],
         sameAs: site.socials.map(social => social.href),
     }

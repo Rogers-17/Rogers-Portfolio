@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     description: site.description,
     images: [DEFAULT_OG_IMAGE],
   },
-  twitter: { card: "summary_large_image", title: site.title, description: site.description, images: [DEFAULT_OG_IMAGE.url] },
+  twitter: { card: "summary_large_image", creator: site.xHandle, title: site.title, description: site.description, images: [DEFAULT_OG_IMAGE.url] },
   // Only Vercel Production is indexable; previews and local builds are always noindex.
   robots: isIndexable
     ? { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } }

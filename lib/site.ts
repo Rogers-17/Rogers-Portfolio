@@ -38,12 +38,16 @@ export const site = {
     locale: "en_US",
     language: "en",
     countryCode: "LR",
+    city: "Monrovia",
     themeColor: "#05000a",
     knowsAbout: ["Next.js", "React", "TypeScript", "Node.js", "Supabase"],
-    // Verified public profiles only. Add LinkedIn / X here once real URLs exist.
+    // Verified public profiles only (footer icons + Person sameAs).
     socials: [
         { name: "GitHub", href: "https://github.com/Rogers-17" },
+        { name: "LinkedIn", href: "https://www.linkedin.com/in/mohammed-rogers-791589388" },
+        { name: "X", href: "https://x.com/Ayosavage361142" },
     ],
+    xHandle: "@Ayosavage361142",
 } as const
 
 export const DEFAULT_OG_IMAGE = { url: "/og", width: 1200, height: 630, alt: `${site.name}, ${site.jobTitle}` }

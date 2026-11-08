@@ -1,10 +1,10 @@
 import Link from "next/link";
 import type { IconType } from "react-icons";
-import { FaGithub, FaArrowRight } from "react-icons/fa6";
+import { FaGithub, FaLinkedinIn, FaXTwitter, FaArrowRight } from "react-icons/fa6";
 import { site } from "@/lib/site";
 
 // Verified public profiles only (lib/site.ts). Add an icon here when a profile is added there.
-const SOCIAL_ICONS: Record<string, IconType> = { GitHub: FaGithub }
+const SOCIAL_ICONS: Record<string, IconType> = { GitHub: FaGithub, LinkedIn: FaLinkedinIn, X: FaXTwitter }
 const socials = site.socials.map(social => ({ ...social, Icon: SOCIAL_ICONS[social.name] ?? FaArrowRight }))
 
 const navigate = [
@@ -31,7 +31,7 @@ export default function Footer () {
                             Rogers
                         </Link>
                         <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted">
-                            Full-Stack Developer harnessing AI, design, and code to rapidly deliver intuitive global solutions for startups and institutions.
+                            Full-Stack Developer based in Monrovia, Liberia, harnessing AI, design, and code to rapidly deliver intuitive global solutions for startups and institutions.
                         </p>
                         <div className="mt-6 flex gap-3">
                             {socials.map(({ name, href, Icon }) => (

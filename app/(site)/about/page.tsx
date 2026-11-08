@@ -12,7 +12,7 @@ import JsonLd from "@/components/seo/JsonLd"
 import { breadcrumbJsonLd, pageMetadata, profilePageJsonLd } from "@/lib/seo"
 import { absoluteUrl } from "@/lib/site"
 
-const DESCRIPTION = "About Mohammed N. Rogers, a full-stack software engineer based in Liberia: background, journey and approach to building web products."
+const DESCRIPTION = "About Mohammed N. Rogers, a full-stack software engineer based in Monrovia, Liberia: background, journey and approach to building web products."
 
 export const metadata: Metadata = pageMetadata({ title: "About", description: DESCRIPTION, path: "/about" })
 
