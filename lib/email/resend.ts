@@ -6,7 +6,8 @@ import "server-only"
 const RESEND_ENDPOINT = "https://api.resend.com/emails"
 const TIMEOUT_MS = 8000
 
-type EmailInput = { from: string, to: string[], subject: string, text: string }
+// `text` is always sent (clients without HTML, deliverability); `html` is optional.
+type EmailInput = { from: string, to: string[], subject: string, text: string, html?: string }
 
 export function resendApiKey (): string | null {
     return process.env.RESEND_API_KEY?.trim() || null
