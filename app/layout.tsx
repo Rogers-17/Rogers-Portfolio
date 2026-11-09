@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFonts from "next/font/local"
 import "./globals.css";
 import { DEFAULT_OG_IMAGE, SITE_URL, isIndexable, site } from "@/lib/site";
+import SiteAnalytics from "@/components/analytics/SiteAnalytics";
 
 const atydisplay = localFonts({
   src:[
@@ -67,6 +68,7 @@ export default function RootLayout({
     >
       <body className="flex min-h-screen flex-col bg-surface text-fg leading-[1.6]">
         {children}
+        <SiteAnalytics />
         </body>
     </html>
   );
