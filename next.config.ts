@@ -14,6 +14,9 @@ const isIndexable = process.env.VERCEL_ENV === "production";
 const NOINDEX = { key: "X-Robots-Tag", value: "noindex, nofollow" };
 
 const nextConfig: NextConfig = {
+  // Google ADK (admin Assistant) has Node-only and optional peer dependencies (express, MCP,
+  // cloud SDKs) that must not be bundled; load it with native require at runtime.
+  serverExternalPackages: ["@google/adk"],
   images: {
     remotePatterns: supabaseHost
       ? [{ protocol: "https", hostname: supabaseHost, pathname: "/storage/v1/object/public/**" }]

@@ -1,10 +1,10 @@
 import { requireAdminApi } from "@/lib/admin/auth"
 import { fail, ok, parseJson } from "@/lib/admin/http"
 import { getPostForAdmin } from "@/lib/admin/blog-queries"
-import { postDbError, toPostRow } from "@/lib/admin/blog-routes"
 import { blogPostInputSchema } from "@/lib/admin/blog-schemas"
-import { revalidateBlog } from "@/lib/admin/revalidate"
 import { uuidSchema } from "@/lib/admin/schemas"
+import { updatePost } from "@/lib/admin/actions/records"
+import { toResponse } from "@/lib/admin/actions/result"
 
 type Context = { params: Promise<{ id: string }> }
 
@@ -29,10 +29,5 @@ export async function POST (request: Request, context: Context) {
     const parsed = await parseJson(request, blogPostInputSchema)
     if (!parsed.success) return parsed.response
 
-    const { data, error } = await auth.ctx.supabase.from("blog_posts").update(toPostRow(parsed.data)).eq("id", id.data).select("id")
-    if (error) return postDbError(error, "update blog_posts")
-    if (!data?.length) return notFound()
-
-    revalidateBlog()
-    return ok({ id: id.data })
+    return toResponse(await updatePost(auth.ctx.supabase, id.data, parsed.data))
 }

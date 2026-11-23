@@ -1,8 +1,10 @@
 import { requireAdminApi } from "@/lib/admin/auth"
-import { dbError, fail, ok, parseJson } from "@/lib/admin/http"
+import { fail, ok, parseJson } from "@/lib/admin/http"
 import { projectRequestUpdateSchema } from "@/lib/admin/page-schemas"
 import { getProjectRequest } from "@/lib/admin/page-queries"
 import { uuidSchema } from "@/lib/admin/schemas"
+import { updateInquiry } from "@/lib/admin/actions/records"
+import { toResponse } from "@/lib/admin/actions/result"
 
 type Context = { params: Promise<{ id: string }> }
 
@@ -28,8 +30,5 @@ export async function POST (request: Request, context: Context) {
     const parsed = await parseJson(request, projectRequestUpdateSchema)
     if (!parsed.success) return parsed.response
 
-    const { data, error } = await auth.ctx.supabase.from("project_requests").update(parsed.data).eq("id", id.data).select("id")
-    if (error) return dbError(error, "update project_requests")
-    if (!data?.length) return notFound()
-    return ok({ id: id.data, ...parsed.data })
+    return toResponse(await updateInquiry(auth.ctx.supabase, id.data, parsed.data))
 }

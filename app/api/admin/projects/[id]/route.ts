@@ -1,8 +1,9 @@
 import { requireAdminApi } from "@/lib/admin/auth"
-import { dbError, fail, ok, parseJson } from "@/lib/admin/http"
+import { fail, ok, parseJson } from "@/lib/admin/http"
 import { getProjectForAdmin } from "@/lib/admin/queries"
-import { revalidateProjects } from "@/lib/admin/revalidate"
 import { projectInputSchema, uuidSchema } from "@/lib/admin/schemas"
+import { saveProject } from "@/lib/admin/actions/projects"
+import { toResponse } from "@/lib/admin/actions/result"
 
 type Context = { params: Promise<{ id: string }> }
 
@@ -27,9 +28,5 @@ export async function POST (request: Request, { params }: Context) {
     const parsed = await parseJson(request, projectInputSchema)
     if (!parsed.success) return parsed.response
 
-    const { error } = await auth.ctx.supabase.rpc("admin_save_project", { p_id: id.data, payload: parsed.data })
-    if (error) return dbError(error, "update project")
-
-    revalidateProjects()
-    return ok({ id: id.data, slug: parsed.data.slug })
+    return toResponse(await saveProject(auth.ctx.supabase, id.data, parsed.data))
 }

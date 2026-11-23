@@ -1,9 +1,9 @@
 import { requireAdminApi } from "@/lib/admin/auth"
 import { ok, parseJson } from "@/lib/admin/http"
 import { listPostsForAdmin } from "@/lib/admin/blog-queries"
-import { postDbError, toPostRow } from "@/lib/admin/blog-routes"
 import { blogPostInputSchema } from "@/lib/admin/blog-schemas"
-import { revalidateBlog } from "@/lib/admin/revalidate"
+import { createPost } from "@/lib/admin/actions/records"
+import { toResponse } from "@/lib/admin/actions/result"
 
 export async function GET (request: Request) {
     const auth = await requireAdminApi(request)
@@ -18,9 +18,5 @@ export async function POST (request: Request) {
     const parsed = await parseJson(request, blogPostInputSchema)
     if (!parsed.success) return parsed.response
 
-    const { data, error } = await auth.ctx.supabase.from("blog_posts").insert(toPostRow(parsed.data)).select("id").single()
-    if (error) return postDbError(error, "create blog_posts")
-
-    revalidateBlog()
-    return ok({ id: data.id }, 201)
+    return toResponse(await createPost(auth.ctx.supabase, parsed.data), 201)
 }

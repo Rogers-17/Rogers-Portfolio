@@ -1,7 +1,8 @@
 import { requireAdminApi } from "@/lib/admin/auth"
-import { dbError, fail, ok, parseJson } from "@/lib/admin/http"
-import { revalidateProjects } from "@/lib/admin/revalidate"
+import { fail, parseJson } from "@/lib/admin/http"
 import { toggleSchema, uuidSchema } from "@/lib/admin/schemas"
+import { toggleProject } from "@/lib/admin/actions/projects"
+import { toResponse } from "@/lib/admin/actions/result"
 
 type Context = { params: Promise<{ id: string }> }
 
@@ -14,16 +15,6 @@ export async function POST (request: Request, { params }: Context) {
 
     const parsed = await parseJson(request, toggleSchema)
     if (!parsed.success) return parsed.response
-    const { field, value } = parsed.data
 
-    const { data, error } = await auth.ctx.supabase
-        .from("projects")
-        .update({ [field]: value })
-        .eq("id", id.data)
-        .select("id")
-    if (error) return dbError(error, "toggle project")
-    if (!data?.length) return fail(404, "not_found", "Project not found.")
-
-    revalidateProjects()
-    return ok({ id: id.data, [field]: value })
+    return toResponse(await toggleProject(auth.ctx.supabase, id.data, parsed.data.field, parsed.data.value))
 }

@@ -1,19 +1,11 @@
 import "server-only"
-import type { SupabaseClient } from "@supabase/supabase-js"
-import type { z } from "zod"
 import { requireAdminApi } from "@/lib/admin/auth"
-import { dbError, fail, ok, parseJson } from "@/lib/admin/http"
+import { ok, parseJson } from "@/lib/admin/http"
+import { toResponse } from "@/lib/admin/actions/result"
+import { updateSingleton, type SingletonConfig } from "@/lib/admin/actions/singletons"
 
-// GET/POST handlers for single-row page tables (id = 1). The row is created by the seed;
-// updates never accept an id, and a missing row is reported instead of silently inserted.
-
-type SingletonConfig = {
-    table: "about_page" | "gallery_page" | "project_form_settings" | "blog_page"
-    label: string
-    inputSchema: z.ZodType<Record<string, unknown>>
-    get: (supabase: SupabaseClient) => Promise<unknown>
-    revalidate: () => void
-}
+// GET/POST handlers for single-row page tables (id = 1). The write logic lives in
+// lib/admin/actions/singletons.ts so the AI assistant uses the same code.
 
 export function singletonHandlers (config: SingletonConfig) {
     return {
@@ -30,14 +22,7 @@ export function singletonHandlers (config: SingletonConfig) {
             const parsed = await parseJson(request, config.inputSchema)
             if (!parsed.success) return parsed.response
 
-            const { data, error } = await auth.ctx.supabase.from(config.table).update(parsed.data).eq("id", 1).select("id")
-            if (error) return dbError(error, `update ${config.table}`)
-            if (!data?.length) {
-                return fail(404, "not_seeded", `${config.label} row is missing. Run the matching seed file in supabase/ first.`)
-            }
-
-            config.revalidate()
-            return ok({ saved: true })
+            return toResponse(await updateSingleton(auth.ctx.supabase, config, parsed.data))
         },
     }
 }

@@ -1,8 +1,9 @@
 import { requireAdminApi } from "@/lib/admin/auth"
-import { dbError, ok, parseJson } from "@/lib/admin/http"
+import { ok, parseJson } from "@/lib/admin/http"
 import { listProjectsForAdmin } from "@/lib/admin/queries"
-import { revalidateProjects } from "@/lib/admin/revalidate"
 import { projectInputSchema } from "@/lib/admin/schemas"
+import { saveProject } from "@/lib/admin/actions/projects"
+import { toResponse } from "@/lib/admin/actions/result"
 
 export async function GET (request: Request) {
     const auth = await requireAdminApi(request)
@@ -18,9 +19,5 @@ export async function POST (request: Request) {
     const parsed = await parseJson(request, projectInputSchema)
     if (!parsed.success) return parsed.response
 
-    const { data: id, error } = await auth.ctx.supabase.rpc("admin_save_project", { p_id: null, payload: parsed.data })
-    if (error) return dbError(error, "create project")
-
-    revalidateProjects()
-    return ok({ id, slug: parsed.data.slug }, 201)
+    return toResponse(await saveProject(auth.ctx.supabase, null, parsed.data), 201)
 }

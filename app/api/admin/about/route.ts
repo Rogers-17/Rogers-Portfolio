@@ -1,12 +1,4 @@
 import { singletonHandlers } from "@/lib/admin/page-routes"
-import { aboutPageInputSchema } from "@/lib/admin/page-schemas"
-import { getAboutForAdmin } from "@/lib/admin/page-queries"
-import { revalidateAbout } from "@/lib/admin/revalidate"
+import { aboutPageConfig } from "@/lib/admin/actions/singletons"
 
-export const { GET, POST } = singletonHandlers({
-    table: "about_page",
-    label: "About page",
-    inputSchema: aboutPageInputSchema,
-    get: getAboutForAdmin,
-    revalidate: revalidateAbout,
-})
+export const { GET, POST } = singletonHandlers(aboutPageConfig)

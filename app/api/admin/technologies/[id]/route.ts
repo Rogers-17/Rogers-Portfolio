@@ -1,7 +1,8 @@
 import { requireAdminApi } from "@/lib/admin/auth"
-import { dbError, fail, ok, parseJson } from "@/lib/admin/http"
-import { revalidateProjects } from "@/lib/admin/revalidate"
+import { fail, parseJson } from "@/lib/admin/http"
 import { technologyInputSchema, uuidSchema } from "@/lib/admin/schemas"
+import { updateTechnology } from "@/lib/admin/actions/projects"
+import { toResponse } from "@/lib/admin/actions/result"
 
 type Context = { params: Promise<{ id: string }> }
 
@@ -15,15 +16,5 @@ export async function POST (request: Request, { params }: Context) {
     const parsed = await parseJson(request, technologyInputSchema)
     if (!parsed.success) return parsed.response
 
-    const { data, error } = await auth.ctx.supabase
-        .from("technologies")
-        .update(parsed.data)
-        .eq("id", id.data)
-        .select("id, name, slug, icon_path")
-        .maybeSingle()
-    if (error) return dbError(error, "update technology")
-    if (!data) return fail(404, "not_found", "Technology not found.")
-
-    revalidateProjects()
-    return ok(data)
+    return toResponse(await updateTechnology(auth.ctx.supabase, id.data, parsed.data))
 }

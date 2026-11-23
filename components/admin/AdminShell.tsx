@@ -4,8 +4,9 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import type { IconType } from "react-icons"
-import { FiArchive, FiBriefcase, FiChevronsLeft, FiChevronsRight, FiClipboard, FiEdit3, FiExternalLink, FiFileText, FiGrid, FiImage, FiInbox, FiLayers, FiLogOut, FiMail, FiMenu, FiMessageSquare, FiTarget, FiUser, FiX } from "react-icons/fi"
+import { FiArchive, FiBriefcase, FiChevronsLeft, FiChevronsRight, FiClipboard, FiEdit3, FiExternalLink, FiFileText, FiGrid, FiImage, FiInbox, FiLayers, FiLogOut, FiMail, FiMenu, FiMessageSquare, FiTarget, FiUser, FiX, FiZap } from "react-icons/fi"
 import { adminFetch } from "@/lib/admin/client"
+import AssistantDrawer from "@/components/admin/assistant/AssistantDrawer"
 import { DialogProvider } from "@/components/admin/Dialog"
 import { ToastProvider } from "@/components/admin/Toast"
 import { SIDEBAR_COOKIE } from "@/lib/admin/sidebar"
@@ -117,6 +118,20 @@ export default function AdminShell ({ email, newInquiries = 0, dueFollowUps = 0,
         document.addEventListener("keydown", onKeyDown)
         return () => document.removeEventListener("keydown", onKeyDown)
     }, [toggleCollapsed])
+
+    // Assistant drawer: Ctrl/⌘ + K toggles it (except inside rich-text editors).
+    const [assistantOpen, setAssistantOpen] = React.useState(false)
+    const closeAssistant = React.useCallback(() => setAssistantOpen(false), [])
+    React.useEffect(() => {
+        function onKeyDown (event: KeyboardEvent) {
+            if (!(event.ctrlKey || event.metaKey) || event.shiftKey || event.altKey || event.key.toLowerCase() !== "k") return
+            if (event.target instanceof HTMLElement && event.target.isContentEditable) return
+            event.preventDefault()
+            setAssistantOpen(open => !open)
+        }
+        document.addEventListener("keydown", onKeyDown)
+        return () => document.removeEventListener("keydown", onKeyDown)
+    }, [])
     const [drawerOpen, setDrawerOpen] = React.useState(false)
     const [signingOut, setSigningOut] = React.useState(false)
     const [lastPathname, setLastPathname] = React.useState(pathname)
@@ -211,6 +226,10 @@ export default function AdminShell ({ email, newInquiries = 0, dueFollowUps = 0,
                         <NavLinks variant="full" isActive={isActive} newInquiries={newInquiries} dueFollowUps={dueFollowUps} />
                     </div>
                     <div className="flex flex-col gap-2">
+                        <button type="button" onClick={() => setAssistantOpen(true)} aria-expanded={assistantOpen} title="Assistant (Ctrl+K)" className={itemClass(false, "full")}>
+                            <FiZap className="shrink-0 text-[17px] text-accent-1" aria-hidden="true" /> Assistant
+                            <kbd className="ml-auto rounded border border-white/10 px-1.5 py-0.5 font-sans text-[10px] font-semibold text-dim">Ctrl K</kbd>
+                        </button>
                         <button type="button" onClick={toggleCollapsed} aria-expanded="true" aria-label="Collapse sidebar" title="Collapse sidebar (Ctrl+B)" className={`inline-flex min-h-10 items-center gap-3 rounded-xl px-3 text-sm font-medium text-muted hover:bg-white/4 hover:text-white ${focusRing}`}>
                             <FiChevronsLeft className="text-[17px] text-dim" aria-hidden="true" /> Collapse
                         </button>
@@ -225,6 +244,9 @@ export default function AdminShell ({ email, newInquiries = 0, dueFollowUps = 0,
                         <NavLinks variant="rail" isActive={isActive} newInquiries={newInquiries} dueFollowUps={dueFollowUps} />
                     </div>
                     <div className="flex flex-col items-center gap-1">
+                        <button type="button" onClick={() => setAssistantOpen(true)} aria-expanded={assistantOpen} aria-label="Assistant" title="Assistant (Ctrl+K)" className={itemClass(false, "rail")}>
+                            <FiZap className="text-lg text-accent-1" aria-hidden="true" />
+                        </button>
                         <button type="button" onClick={toggleCollapsed} aria-expanded="false" aria-label="Expand sidebar" title="Expand sidebar (Ctrl+B)" className={`${itemClass(false, "rail")} hidden lg:flex`}>
                             <FiChevronsRight className="text-lg" aria-hidden="true" />
                         </button>
@@ -240,6 +262,10 @@ export default function AdminShell ({ email, newInquiries = 0, dueFollowUps = 0,
                 {/* < md: top bar + drawer */}
                 <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-white/6 bg-card/95 px-4 backdrop-blur md:hidden">
                     {logo()}
+                    <div className="flex items-center">
+                    <button type="button" onClick={() => setAssistantOpen(true)} aria-expanded={assistantOpen} aria-label="Open assistant" className="inline-flex size-11 items-center justify-center rounded-lg text-accent-1 hover:bg-white/6">
+                        <FiZap size={20} aria-hidden="true" />
+                    </button>
                     <button
                         ref={menuButtonRef}
                         type="button"
@@ -251,6 +277,7 @@ export default function AdminShell ({ email, newInquiries = 0, dueFollowUps = 0,
                     >
                         <FiMenu size={22} aria-hidden="true" />
                     </button>
+                    </div>
                 </header>
 
                 <div className={`fixed inset-0 z-50 md:hidden ${drawerOpen ? "" : "pointer-events-none"}`} inert={!drawerOpen}>
@@ -278,6 +305,9 @@ export default function AdminShell ({ email, newInquiries = 0, dueFollowUps = 0,
                         <div className="flex-1">
                             <NavLinks variant="full" isActive={isActive} newInquiries={newInquiries} dueFollowUps={dueFollowUps} onNavigate={() => setDrawerOpen(false)} />
                         </div>
+                        <button type="button" onClick={() => { setDrawerOpen(false); setAssistantOpen(true) }} className={itemClass(false, "full")}>
+                            <FiZap className="shrink-0 text-[17px] text-accent-1" aria-hidden="true" /> Assistant
+                        </button>
                         {account}
                     </div>
                 </div>
@@ -286,6 +316,7 @@ export default function AdminShell ({ email, newInquiries = 0, dueFollowUps = 0,
                     <div className={`mx-auto ${WIDE_ROUTES.test(pathname) ? "max-w-none" : "max-w-6xl"}`}>{children}</div>
                 </main>
             </div>
+            <AssistantDrawer open={assistantOpen} onClose={closeAssistant} />
         </DialogProvider>
         </ToastProvider>
     )
