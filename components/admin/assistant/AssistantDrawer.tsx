@@ -152,7 +152,8 @@ export default function AssistantDrawer ({ open, onClose }: Props) {
         setDraft("")
         setLoading(true)
 
-        const result = await adminFetch<AgentReply>("/api/admin/agent", { json: { messages: [...toHistory(base), { role: "user", text: message }] } })
+        // The server gives up after ~50s; this is a safety net so the chat can never spin forever.
+        const result = await adminFetch<AgentReply>("/api/admin/agent", { json: { messages: [...toHistory(base), { role: "user", text: message }] }, signal: AbortSignal.timeout(65_000) })
         setLoading(false)
 
         if (!result.ok) {
