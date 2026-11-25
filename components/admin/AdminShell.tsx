@@ -4,7 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import type { IconType } from "react-icons"
-import { FiArchive, FiBriefcase, FiChevronsLeft, FiChevronsRight, FiClipboard, FiEdit3, FiExternalLink, FiFileText, FiGrid, FiImage, FiInbox, FiLayers, FiLogOut, FiMail, FiMenu, FiMessageSquare, FiTarget, FiUser, FiX, FiZap } from "react-icons/fi"
+import { FiActivity, FiArchive, FiBriefcase, FiChevronsLeft, FiChevronsRight, FiClipboard, FiEdit3, FiExternalLink, FiFileText, FiGrid, FiImage, FiInbox, FiLayers, FiLogOut, FiMail, FiMenu, FiMessageSquare, FiTarget, FiUser, FiX, FiZap } from "react-icons/fi"
 import { adminFetch } from "@/lib/admin/client"
 import AssistantDrawer from "@/components/admin/assistant/AssistantDrawer"
 import { DialogProvider } from "@/components/admin/Dialog"
@@ -14,6 +14,8 @@ import { SIDEBAR_COOKIE } from "@/lib/admin/sidebar"
 type NavItem = { href: string, label: string, icon: IconType }
 
 const navItems: NavItem[] = [
+    { href: "/admin", label: "Dashboard", icon: FiActivity },
+    { href: "/admin/assistant", label: "Agent workspace", icon: FiZap },
     { href: "/admin/projects", label: "Projects", icon: FiGrid },
     { href: "/admin/technologies", label: "Technologies", icon: FiLayers },
     { href: "/admin/testimonials", label: "Testimonials", icon: FiMessageSquare },
@@ -144,7 +146,7 @@ export default function AdminShell ({ email, newInquiries = 0, dueFollowUps = 0,
         setDrawerOpen(false)
     }
 
-    const isActive = (href: string) => pathname.startsWith(href) || (href === "/admin/resumes" && pathname.startsWith("/admin/resume-settings"))
+    const isActive = (href: string) => (href === "/admin" ? pathname === "/admin" : pathname.startsWith(href)) || (href === "/admin/resumes" && pathname.startsWith("/admin/resume-settings"))
 
     // Drawer: lock page scroll, move focus in, trap Tab, close on Escape, restore focus on close.
     React.useEffect(() => {
@@ -189,7 +191,7 @@ export default function AdminShell ({ email, newInquiries = 0, dueFollowUps = 0,
     }
 
     const logo = (compact = false) => (
-        <Link href="/admin/projects" aria-label="Rogers admin home" className={`flex items-center gap-2 rounded-lg ${focusRing}`}>
+        <Link href="/admin" aria-label="Rogers admin home" className={`flex items-center gap-2 rounded-lg ${focusRing}`}>
             <span className="bg-linear-65/srgb from-accent-1 to-accent-2 bg-clip-text text-xl font-extrabold text-transparent uppercase">{compact ? "R" : "Rogers"}</span>
             {!compact && <span className="rounded-md border border-white/10 bg-white/4 px-1.5 py-0.5 text-[10px] font-semibold tracking-wider text-muted uppercase">Admin</span>}
         </Link>

@@ -23,12 +23,15 @@ export const agentRequestSchema = z.object({
         .min(1)
         .max(HISTORY_MAX + 1)
         .refine(messages => messages[messages.length - 1]?.role === "user", "The last message must be from the user"),
+    conversationId: z.uuid().optional(),
+    projectId: z.uuid().optional(),
+    mode: z.enum(["saved", "personalized_temporary", "unpersonalized_temporary"]).default("saved"),
 })
 
 const diffSchema = z.object({
     field: z.string().max(80),
-    before: z.string().max(400),
-    after: z.string().max(400),
+    before: z.string().max(100000),
+    after: z.string().max(100000),
 })
 
 export type ProposalDiff = z.infer<typeof diffSchema>
@@ -41,6 +44,7 @@ export const proposalSchema = z.object({
     label: z.string().max(200),
     summary: z.string().max(300),
     diff: z.array(diffSchema).max(80),
+    review: z.object({ before: z.record(z.string(), z.unknown()), after: z.record(z.string(), z.unknown()) }).optional(),
     payload: z.record(z.string(), z.unknown()),
 })
 
@@ -49,4 +53,5 @@ export type Proposal = z.infer<typeof proposalSchema>
 export const confirmRequestSchema = z.object({ proposal: proposalSchema })
 
 export type AgentUsage = { used: number, limit: number, model: string }
-export type AgentReply = { reply: string, proposals: Proposal[], usage: AgentUsage }
+export type AgentCitation = { title: string, url: string }
+export type AgentReply = { reply: string, proposals: Proposal[], usage: AgentUsage, citations?: AgentCitation[] }

@@ -1,16 +1,17 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { FiArrowUp, FiRefreshCw, FiTrash2, FiX, FiZap } from "react-icons/fi"
 import { adminFetch } from "@/lib/admin/client"
 import { useToast } from "@/components/admin/Toast"
 import ProposalCard, { type CardState } from "@/components/admin/assistant/ProposalCard"
-import { HISTORY_MAX, MESSAGE_MAX, type AgentReply, type AgentUsage, type ChatMessage } from "@/lib/agent/schemas"
+import { HISTORY_MAX, MESSAGE_MAX, type AgentCitation, type AgentReply, type AgentUsage, type ChatMessage } from "@/lib/agent/schemas"
 
 type Entry =
     | { id: string, role: "user", text: string }
-    | { id: string, role: "assistant", text: string, cards: CardState[] }
+    | { id: string, role: "assistant", text: string, cards: CardState[], citations?: AgentCitation[] }
     | { id: string, role: "error", text: string }
 
 const STORAGE_KEY = "admin-assistant:v1"
@@ -165,6 +166,7 @@ export default function AssistantDrawer ({ open, onClose }: Props) {
             id: newId(),
             role: "assistant",
             text: result.data.reply,
+            citations: result.data.citations,
             cards: result.data.proposals.map(proposal => ({ proposal, status: "pending" as const })),
         }])
     }
@@ -245,6 +247,7 @@ export default function AssistantDrawer ({ open, onClose }: Props) {
                     <button type="button" onClick={clear} disabled={loading || entries.length === 0} aria-label="Clear chat" title="Clear chat" className={`inline-flex size-9 items-center justify-center rounded-xl text-muted hover:bg-white/4 hover:text-white disabled:opacity-40 ${focusRing}`}>
                         <FiTrash2 aria-hidden="true" />
                     </button>
+                    <Link href="/admin/assistant" onClick={onClose} aria-label="Open assistant workspace" title="Assistant workspace" className={`inline-flex size-9 items-center justify-center rounded-xl text-muted hover:bg-white/4 hover:text-white ${focusRing}`}><FiZap aria-hidden="true" /></Link>
                     <button type="button" onClick={onClose} aria-label="Close assistant" title="Close (Esc)" className={`inline-flex size-9 items-center justify-center rounded-xl text-muted hover:bg-white/4 hover:text-white ${focusRing}`}>
                         <FiX size={18} aria-hidden="true" />
                     </button>
@@ -296,6 +299,7 @@ export default function AssistantDrawer ({ open, onClose }: Props) {
                                 <span className="mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-accent-1 to-accent-2 text-white" aria-hidden="true"><FiZap size={14} /></span>
                                 <div className="flex min-w-0 flex-1 flex-col gap-2.5">
                                     {entry.text && <p className="text-sm leading-relaxed break-words whitespace-pre-wrap text-fg/90">{entry.text}</p>}
+                                    {entry.citations?.length ? <div className="flex flex-wrap gap-2">{entry.citations.map(citation => <a key={citation.url} href={citation.url} target="_blank" rel="noreferrer" className={`rounded-full border border-white/10 px-2 py-1 text-xs text-accent-1 hover:bg-white/5 ${focusRing}`}>{citation.title}</a>)}</div> : null}
                                     {entry.cards.map(card => (
                                         <ProposalCard
                                             key={card.proposal.id}

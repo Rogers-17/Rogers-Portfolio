@@ -25,10 +25,9 @@ const isEmpty = (value: unknown) => value === null || value === undefined || val
 function format (value: unknown): string {
     if (isEmpty(value)) return "—"
     if (typeof value === "boolean") return value ? "Yes" : "No"
-    if (Array.isArray(value)) return value.map(item => (typeof item === "object" ? JSON.stringify(item) : String(item))).join(", ").slice(0, 300)
-    if (typeof value === "object") return JSON.stringify(value).slice(0, 300)
-    const text = String(value)
-    return text.length > 300 ? `${text.slice(0, 299)}…` : text
+    if (Array.isArray(value)) return value.map(item => (typeof item === "object" ? JSON.stringify(item) : String(item))).join(", ")
+    if (typeof value === "object") return JSON.stringify(value)
+    return String(value)
 }
 
 const humanize = (key: string) => key.replace(/_/g, " ").replace(/^\w/, char => char.toUpperCase())
@@ -96,13 +95,15 @@ export class ProposalCollector {
             const field = changedKeys[0]
             const value = input[field] as boolean
             const verb = field === "is_featured" ? (value ? "Feature" : "Unfeature") : (value ? "Publish" : "Unpublish")
-            return this.add({ type, op: "toggle", targetId: id, label, summary: `${verb} ${adapter.label.toLowerCase()} “${label}”`, diff, payload: { field, value } })
+            return this.add({ type, op: "toggle", targetId: id, label, summary: `${verb} ${adapter.label.toLowerCase()} “${label}”`, diff, review: { before: await display(this.supabase, current ?? {}), after: await display(this.supabase, input) }, payload: { field, value } })
         }
 
         const summary = creating
             ? `Create ${adapter.label.toLowerCase()} “${label}”`
             : adapter.singleton ? `Update ${adapter.label} (${diff.length} field${diff.length === 1 ? "" : "s"})` : `Update ${adapter.label.toLowerCase()} “${label}” (${diff.length} field${diff.length === 1 ? "" : "s"})`
-        return this.add({ type, op: creating ? "create" : "update", targetId: id ?? undefined, label, summary, diff, payload: input })
+        const before = current ? await display(this.supabase, current) : {}
+        const after = await display(this.supabase, input)
+        return this.add({ type, op: creating ? "create" : "update", targetId: id ?? undefined, label, summary, diff, review: { before, after }, payload: input })
     }
 
     async remove (type: ContentType, id: string): Promise<ToolOutcome> {
@@ -111,7 +112,7 @@ export class ProposalCollector {
         const current = await adapter.view(this.supabase, id)
         if (!current) return { status: "not_found", message: `${adapter.label} not found. Use list_content to find the right id.` }
         const label = adapter.name(current).slice(0, 200)
-        return this.add({ type, op: "delete", targetId: id, label, summary: `Delete ${adapter.label.toLowerCase()} “${label}”`, diff: [], payload: {} })
+        return this.add({ type, op: "delete", targetId: id, label, summary: `Delete ${adapter.label.toLowerCase()} “${label}”`, diff: [], review: { before: current, after: {} }, payload: {} })
     }
 }
 

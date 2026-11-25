@@ -5,6 +5,7 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 import { ADAPTERS, adapterFor, type ContentType } from "@/lib/agent/registry"
 import { AGENT_TYPES } from "@/lib/agent/schemas"
 import type { ProposalCollector } from "@/lib/agent/proposals"
+import { getGitHubStats } from "@/lib/github/stats"
 
 // ADK function tools for the admin assistant. Reads run immediately; every write tool only
 // produces a proposal that the owner must confirm (see lib/agent/proposals.ts).
@@ -24,11 +25,12 @@ async function guarded<T> (label: string, run: () => Promise<T>) {
 }
 
 // `adk` is the lazily imported @google/adk module (see lib/agent/run.ts).
-export function buildTools (adk: typeof Adk, supabase: SupabaseClient, collector: ProposalCollector) {
+export function buildTools (adk: typeof Adk, supabase: SupabaseClient, collector: ProposalCollector, options: { readOnly?: boolean, enabledTools?: string[] } = {}) {
     type Tool = Adk.FunctionTool<z.ZodObject<z.ZodRawShape>>
     const tools: Tool[] = []
+    const enabled = new Set(options.enabledTools ?? ["site_read", "site_write", "web_research"])
 
-    tools.push(new adk.FunctionTool({
+    if (enabled.has("site_read")) tools.push(new adk.FunctionTool({
         name: "list_content",
         description: "List items of one content type with their ids (compact rows). Use before any update or delete to find the right id. For *_page and project_form it returns the page's current text.",
         parameters: z.object({
@@ -43,7 +45,7 @@ export function buildTools (adk: typeof Adk, supabase: SupabaseClient, collector
         }),
     }) as unknown as Tool)
 
-    tools.push(new adk.FunctionTool({
+    if (enabled.has("site_read")) tools.push(new adk.FunctionTool({
         name: "get_content",
         description: "Get the full current values of one item (or of a *_page / project_form page, without an id). Blog posts include body_markdown.",
         parameters: z.object({
@@ -59,7 +61,7 @@ export function buildTools (adk: typeof Adk, supabase: SupabaseClient, collector
     }) as unknown as Tool)
 
     const deletable = AGENT_TYPES.filter(type => Boolean(adapterFor(type).remove)) as [ContentType, ...ContentType[]]
-    tools.push(new adk.FunctionTool({
+    if (enabled.has("site_write") && !options.readOnly) tools.push(new adk.FunctionTool({
         name: "propose_delete",
         description: "Propose deleting one item. Shows the owner a confirmation card; nothing is deleted until they confirm.",
         parameters: z.object({
@@ -72,7 +74,7 @@ export function buildTools (adk: typeof Adk, supabase: SupabaseClient, collector
         }),
     }) as unknown as Tool)
 
-    for (const [type, adapter] of Object.entries(ADAPTERS) as [ContentType, (typeof ADAPTERS)[ContentType]][]) {
+    for (const [type, adapter] of (enabled.has("site_write") && !options.readOnly ? Object.entries(ADAPTERS) : []) as [ContentType, (typeof ADAPTERS)[ContentType]][]) {
         if (!adapter.fields) continue
         const label = adapter.label.toLowerCase()
 
@@ -101,6 +103,18 @@ export function buildTools (adk: typeof Adk, supabase: SupabaseClient, collector
             }),
         }))
     }
+
+    if (enabled.has("web_research")) tools.push(new adk.GoogleSearchTool() as unknown as Tool)
+
+    if (enabled.has("github_stats")) tools.push(new adk.FunctionTool({
+        name: "github_activity",
+        description: "Read the owner's GitHub contribution counts, streaks and activity score for a year. Private repositories are counted only in aggregate; this tool never returns their names or content.",
+        parameters: z.object({ year: z.number().int().min(2008).max(new Date().getUTCFullYear()).optional() }),
+        execute: ({ year }) => guarded("github_activity", async () => {
+            const stats = await getGitHubStats(year ?? new Date().getUTCFullYear())
+            return { configured: stats.configured, login: stats.login, year: stats.year, contributions: stats.contributions, commits: stats.commits, prsOpened: stats.prsOpened, prsMerged: stats.prsMerged, reviews: stats.reviews, currentStreak: stats.currentStreak, longestStreak: stats.longestStreak, score: stats.score }
+        }),
+    }) as unknown as Tool)
 
     return tools
 }

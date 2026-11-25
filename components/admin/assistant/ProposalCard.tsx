@@ -16,14 +16,14 @@ const OP_STYLES: Record<Proposal["op"], { label: string, badge: string }> = {
 
 const DONE_VERB: Record<Proposal["op"], string> = { create: "Created", update: "Updated", toggle: "Updated", delete: "Deleted" }
 
-const VISIBLE_ROWS = 8
 const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-1"
 
 type Props = { card: CardState, onConfirm: () => void, onDiscard: () => void }
 
 export default function ProposalCard ({ card, onConfirm, onDiscard }: Props) {
     const { proposal, status, error } = card
-    const [expanded, setExpanded] = React.useState(false)
+    const [reviewOpen, setReviewOpen] = React.useState(false)
+    const [reviewed, setReviewed] = React.useState(false)
 
     if (status === "done") {
         return <p className="flex items-center gap-1.5 text-xs text-emerald-300"><FiCheck aria-hidden="true" /> {DONE_VERB[proposal.op]} {proposal.label}</p>
@@ -32,8 +32,6 @@ export default function ProposalCard ({ card, onConfirm, onDiscard }: Props) {
 
     const isDelete = proposal.op === "delete"
     const style = OP_STYLES[proposal.op]
-    const rows = expanded ? proposal.diff : proposal.diff.slice(0, VISIBLE_ROWS)
-    const hidden = proposal.diff.length - rows.length
     const busy = status === "confirming"
 
     return (
@@ -44,23 +42,28 @@ export default function ProposalCard ({ card, onConfirm, onDiscard }: Props) {
             </div>
             <p className="mt-1 text-xs text-muted">{proposal.summary}</p>
 
-            {rows.length > 0 && (
+            {proposal.diff.length > 0 && (
                 <dl className="mt-3 flex flex-col gap-2 border-t border-white/6 pt-3 text-xs">
-                    {rows.map(row => (
+                    {proposal.diff.map(row => (
                         <div key={row.field} className="min-w-0">
                             <dt className="text-muted">{row.field}</dt>
-                            <dd className="mt-0.5 break-words">
-                                {row.before !== "—" && proposal.op !== "create" && <span className="mr-1.5 text-dim line-through">{row.before}</span>}
-                                <span className="text-fg">{row.after}</span>
+                            <dd className="mt-0.5 grid min-w-0 gap-1 break-words sm:grid-cols-2">
+                                {proposal.op !== "create" && <span className="whitespace-pre-wrap text-dim">Before: {row.before}</span>}
+                                <span className="whitespace-pre-wrap text-fg">After: {row.after}</span>
                             </dd>
                         </div>
                     ))}
-                    {hidden > 0 && (
-                        <button type="button" onClick={() => setExpanded(true)} className={`self-start rounded text-xs font-semibold text-accent-1 hover:underline ${focusRing}`}>
-                            +{hidden} more
-                        </button>
-                    )}
                 </dl>
+            )}
+
+            {proposal.review && (
+                <details className="mt-3 border-t border-white/6 pt-3" open={reviewOpen} onToggle={event => { setReviewOpen(event.currentTarget.open); if (event.currentTarget.open) setReviewed(true) }}>
+                    <summary className={`cursor-pointer text-xs font-semibold text-accent-1 ${focusRing}`}>Review complete item and full result</summary>
+                    <div className="mt-3 grid gap-3 xl:grid-cols-2">
+                        {proposal.op !== "create" && <ReviewRecord title="Complete current item" value={proposal.review.before} />}
+                        {proposal.op !== "delete" && <ReviewRecord title="Complete proposed result" value={proposal.review.after} />}
+                    </div>
+                </details>
             )}
 
             {isDelete && <p className="mt-3 text-xs text-rose-300">This can&apos;t be undone.</p>}
@@ -73,13 +76,20 @@ export default function ProposalCard ({ card, onConfirm, onDiscard }: Props) {
                 <button
                     type="button"
                     onClick={onConfirm}
-                    disabled={busy}
+                    disabled={busy || Boolean(proposal.review && !reviewed)}
                     className={`inline-flex h-9 items-center gap-2 rounded-xl px-4 text-sm font-semibold text-white disabled:opacity-60 ${isDelete ? "bg-rose-500 hover:bg-rose-500/90" : "bg-linear-to-r from-accent-1 to-accent-2 hover:opacity-90"} ${focusRing}`}
                 >
                     {busy && <span className="size-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden="true" />}
-                    {busy ? "Saving…" : isDelete ? "Delete" : "Confirm"}
+                    {busy ? "Saving…" : proposal.review && !reviewed ? "Review content first" : isDelete ? "Delete" : "Confirm"}
                 </button>
             </div>
         </div>
     )
+}
+
+function ReviewRecord ({ title, value }: { title: string, value: Record<string, unknown> }) {
+    return <section className="min-w-0 rounded-xl border border-white/8 bg-black/20 p-3">
+        <h3 className="mb-2 text-xs font-semibold text-muted">{title}</h3>
+        <pre className="max-h-80 overflow-auto whitespace-pre-wrap break-words text-xs leading-5 text-fg">{JSON.stringify(value, null, 2)}</pre>
+    </section>
 }
