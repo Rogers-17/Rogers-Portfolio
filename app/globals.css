@@ -25,6 +25,23 @@
     0% { left: -100%; }
     100% { left: 200%; }
   }
+
+  /* Agent workspace: messages rising in, the working spark, and shimmering status text. */
+  --animate-rise-in: rise-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-spark: spark 2.4s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.2s linear infinite;
+  @keyframes rise-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes spark {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.15); }
+  }
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+  }
 }
 
 @theme inline {
