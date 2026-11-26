@@ -36,6 +36,8 @@ const JOBS_HREF = "/admin/jobs"
 
 // Editors that need the full width of the screen.
 const WIDE_ROUTES = /^\/admin\/(resumes|cover-letters)\/[^/]+$/
+// Pages that fill the viewport themselves (fixed chat frame), so the page must not scroll under them.
+const FULL_HEIGHT_ROUTES = /^\/admin\/assistant$/
 
 const focusRing = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-1"
 
@@ -314,7 +316,7 @@ export default function AdminShell ({ email, newInquiries = 0, dueFollowUps = 0,
                     </div>
                 </div>
 
-                <main className={`w-full min-w-0 px-4 pt-20 pb-40 transition-[margin] duration-200 ease-out md:ml-16 md:px-8 md:pt-8 md:pb-32 lg:px-10 lg:pt-10 ${collapsed ? "lg:ml-16" : "lg:ml-60"}`}>
+                <main className={`w-full min-w-0 px-4 pt-20 transition-[margin] duration-200 ease-out md:ml-16 md:px-8 md:pt-8 lg:px-10 lg:pt-10 ${FULL_HEIGHT_ROUTES.test(pathname) ? "pb-4 md:pb-6" : "pb-40 md:pb-32"} ${collapsed ? "lg:ml-16" : "lg:ml-60"}`}>
                     <div className={`mx-auto ${WIDE_ROUTES.test(pathname) ? "max-w-none" : "max-w-6xl"}`}>{children}</div>
                 </main>
             </div>
